@@ -26,6 +26,23 @@ def about():
     """Render the website's about page."""
     return render_template('about.html', name="Karimah Swan")
 
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    # if not session.get('logged_in'):
+    #     abort(401)
+
+    # Instantiate your form class
+    registerform=SignUpForm()
+    # Validate file upload on submit
+    if request.method == 'POST' and registerform.validate_on_submit():
+        # Get file data and save to your uploads folder
+        # filename=secure_filename(photo.filename)
+        # photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        flash('File Saved', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('signup.html', form=registerform)
 
 @app.route('/apply', methods=['POST', 'GET'])
 def loanApplication():
@@ -47,6 +64,19 @@ def loanApplication():
 
     return render_template('loanapplication.html', form=applicationform)
 
+@app.route('/guarantor', methods=['POST', 'GET'])
+def guarantorForm():
+    # if not session.get('logged_in'):
+    #     abort(401)
+
+    # Instantiate your form class
+    guarantorform= GuarantorForm()
+    # Validate file upload on submit
+    if request.method == 'POST' and guarantorform.validate_on_submit():
+        flash('Form Completed', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('guarantorform.html', form=guarantorform)
 
 def get_uploaded_file():
     rootdir = os.getcwd()
