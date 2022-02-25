@@ -1,0 +1,15 @@
+body {
+    padding-top: 5rem;
+}
+
+.gallery{
+    display: grid;
+    grid-template-columns: 365px 365px 365px;
+    grid-template-rows: 315px 315px;
+}
+.images{
+    width: 350px;
+    height:300px;
+    object-fit: cover;
+    
+}
