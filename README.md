@@ -11,7 +11,7 @@ $ pip install -r requirements.txt
 $ python run.py
 ```
 
-##How to Import Database:
+## How to Import Database:
 Ensure XAMPP is open as ADMIN, start Apache, MySQL
 
 ensure you run pip install -r requirements.txt
