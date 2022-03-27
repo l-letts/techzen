@@ -9,13 +9,22 @@ from app import app
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
 from .forms import *
-
+# from flask_mysqldb import MySQL
+# import mysql.connector
 
 ###
 # Routing for your application.
 ###
+# mydb = mysql.connector.connect(
+#     host="localhost",
+#     user="root",
+#     passwd="",
+#     db="dev_techzen_db"
+# )
 
-@app.route('/')
+# my_cursor = mydb.cursor()
+
+@app.route('/home')
 def home():
     """Render website's home page."""
     return render_template('home.html')
@@ -35,6 +44,15 @@ def register():
     registerform=SignUpForm()
     # Validate file upload on submit
     if request.method == 'POST' and registerform.validate_on_submit():
+        # fname = request.form['fname']
+        # lname = request.form['lname']
+        # username = request.form['username']
+        # email = request.form['email']
+        # password = request.form['password']
+        
+        # my_cursor.execute("INSERT INTO studentssignup VALUES(%s,%s,%s,%s,%s)", (fname,lname,username,email,password))
+        # mydb.connection.commmit()
+        # my_cursor.close()        
         # Get file data and save to your uploads folder
         # filename=secure_filename(photo.filename)
         # photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -155,7 +173,7 @@ def add_header(response):
 @app.errorhandler(404)
 def page_not_found(error):
     """Custom 404 page."""
-    return render_template('404.html'), 404
+    return render_template('home.html'), 404
 
 
 if __name__ == '__main__':
