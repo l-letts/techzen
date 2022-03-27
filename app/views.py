@@ -5,16 +5,16 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 import os
-from app import app
+from app import app, db
+from app.models import SignUpProfile
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
 from .forms import *
-# from flask_mysqldb import MySQL
-# import mysql.connector
+from flask_mysqldb import MySQL
 
-###
+# ##
 # Routing for your application.
-###
+# ##
 # mydb = mysql.connector.connect(
 #     host="localhost",
 #     user="root",
@@ -22,7 +22,15 @@ from .forms import *
 #     db="dev_techzen_db"
 # )
 
-# my_cursor = mydb.cursor()
+# app.config['MYSQL_HOST'] = 'localhost'
+# app.config['MYSQL_USER'] = 'root'
+# app.config['MYSQL_PASSWORD']= ''
+# app.config['MYSQL_DB'] = 'dev_techzen_db'
+
+# mysql = MySQL(app)
+
+mysql = MySQL(app)
+
 
 @app.route('/home')
 def home():
@@ -35,6 +43,9 @@ def about():
     """Render the website's about page."""
     return render_template('about.html', name="TechZen")
 
+@app.route('/check')
+def check():
+    return render_template('check.html', values= SignUpProfile.query.all())
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     # if not session.get('logged_in'):
@@ -44,14 +55,30 @@ def register():
     registerform=SignUpForm()
     # Validate file upload on submit
     if request.method == 'POST' and registerform.validate_on_submit():
+        # my_cursor = mysql.connection.cursor()
+        
         # fname = request.form['fname']
         # lname = request.form['lname']
         # username = request.form['username']
         # email = request.form['email']
         # password = request.form['password']
+        # print(fname)
+        # print(email)
         
-        # my_cursor.execute("INSERT INTO studentssignup VALUES(%s,%s,%s,%s,%s)", (fname,lname,username,email,password))
-        # mydb.connection.commmit()
+        signup = SignUpProfile( 
+            fname = request.form['fname'],
+            lname = request.form['lname'],
+            username = request.form['username'],
+            email = request.form['email'],
+            password = request.form['password']
+            )
+        
+        db.session.add(signup)
+        print(signup)
+        db.session.commit()
+        flash('added')
+        # my_cursor.execute('''INSERT INTO studentssignup VALUES(%s,%s,%s,%s,%s)''', (fname,lname,username,email,password))
+        # mysql.connection.commmit()
         # my_cursor.close()        
         # Get file data and save to your uploads folder
         # filename=secure_filename(photo.filename)

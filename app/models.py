@@ -2,13 +2,13 @@
 import unicodedata
 from flask import Flask
 from werkzeug.security import generate_password_hash
-# from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
-# app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root@localhost/dev_techzen_db"
-# app.config["MYSQL_DATABASE_HOST"] = "db"
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root@localhost/dev_techzen_db"
+app.config["MYSQL_DATABASE_HOST"] = "db"
 
-# db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 
 
 class SignUpProfile(db.Model):

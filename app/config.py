@@ -1,5 +1,6 @@
 import os
 
+database = "postgresql://root@localhost/dev_techzen_db"
 class Config(object):
     """Base Config Object"""
     DEBUG = False

@@ -12,3 +12,4 @@ flask-sqlalchemy
 flask_mysqldb
 pymysql
 cryptography
+flask_login
