@@ -55,3 +55,37 @@ GRANT ALL PRIVILEGES ON dbtester.* TO 'techzen'@'localhost';
 ```
 
 The database should be created and running now.
+
+### 2. Using the Database
+In VSCODE, open the terminal, run the commands to enter your virtual environment, and pip install the requirements txt.
+```bash
+$ python -m venv venv (you may need to use python3 instead)
+$ source venv/bin/activate (or .\venv\Scripts\activate on Windows)
+$ pip install -r requirements.txt 
+```
+
+After this, run the following commands:
+```bash
+flask db init
+flask db migrate
+flask db upgrade
+```
+
+After you run these commands, run the program using 
+```bash
+python run.py
+```
+
+Navigate to the Sign Up Page, and try to sign up. When complete you should be redirected to the homepage and see this
+<img width="285" alt="image" src="https://user-images.githubusercontent.com/53978750/160509762-8f8d0b2d-dcc3-463e-a075-8d7d6454d4f8.png">
+
+This means the information was added to the database. To check this information for yourself, open up the shell from before, ensure you're logged in still, and
+run this command:
+``` bash
+select * from studentssignup;
+```
+
+The information stored should show up.
+<img width="332" alt="image" src="https://user-images.githubusercontent.com/53978750/160509868-ad45344e-a3c5-4c9b-bf8e-162076d8b9d4.png">
+
+Congratulations, the database is working, and you don't need to follow this guide anymore.
