@@ -26,13 +26,13 @@ Once these are started, open the MYSQL Shell
 
 Inside the shell, run these commands:
 ```bash
-- mysql -u root
+mysql -u root
 ```
 This should log you into the mysql server
 
 At this point, run this command:
 ```bash
-- CREATE DATABASE dbtester;
+CREATE DATABASE dbtester;
 ```
 
 Once this is done, you can run "SHOW DATABASES;" in which a list should appear, and the database "dbtester" should be in the list.
@@ -40,18 +40,18 @@ Once this is done, you can run "SHOW DATABASES;" in which a list should appear, 
 
 Next, run the command:
 ```bash
-- use dbtester;
+use dbtester;
 ```
 This will set the dbtester database as current working database.
 
 Next you need to create a USER to use with the database, I recommend the name techzen with the password 123. The command is:
 ```bash
-- CREATE USER 'techzen'@'localhost' IDENTIFIED BY '123'
+CREATE USER 'techzen'@'localhost' IDENTIFIED BY '123'
 ```
 
 After this, grant ADMIN privileges.
 ```bash
-- GRANT ALL PRIVILEGES ON dbtester.* TO 'techzen'@'localhost';
+GRANT ALL PRIVILEGES ON dbtester.* TO 'techzen'@'localhost';
 ```
 
 The database should be created and running now.
