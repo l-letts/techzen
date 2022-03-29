@@ -46,6 +46,7 @@ def about():
 @app.route('/check')
 def check():
     return render_template('check.html', values= SignUpProfile.query.all())
+    
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     # if not session.get('logged_in'):
@@ -66,12 +67,12 @@ def register():
         # print(email)
         
         signup = SignUpProfile( 
-            fname = request.form['fname'],
-            lname = request.form['lname'],
-            username = request.form['username'],
-            email = request.form['email'],
-            password = request.form['password']
-            )
+            first_name = registerform.fname.data,
+            last_name = registerform.lname.data,
+            username = registerform.username.data,
+            email = registerform.email.data,
+            password = registerform.password.data
+        )
         
         db.session.add(signup)
         print(signup)

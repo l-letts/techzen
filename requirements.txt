@@ -13,3 +13,12 @@ flask_mysqldb
 pymysql
 cryptography
 flask_login
+alembic
+psycopg2
+python-dateutil
+python-editor
+python-dotenv
+SQLAlchemy
+Flask-Migrate
+Flask-Script
+Mako

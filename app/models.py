@@ -1,15 +1,6 @@
-# from . import db
+from . import db
 import unicodedata
-from flask import Flask
 from werkzeug.security import generate_password_hash
-from flask_sqlalchemy import SQLAlchemy
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root@localhost/dev_techzen_db"
-app.config["MYSQL_DATABASE_HOST"] = "db"
-
-db = SQLAlchemy(app)
-
 
 class SignUpProfile(db.Model):
     # You can use this to change the table name. The default convention is to use
@@ -18,7 +9,7 @@ class SignUpProfile(db.Model):
     # to `user_profiles` (plural) or some other name.
     __tablename__ = 'studentssignup'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String(80))
     last_name = db.Column(db.String(80))
     username = db.Column(db.String(80), unique=True)
