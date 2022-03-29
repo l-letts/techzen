@@ -76,7 +76,8 @@ After you run these commands, run the program using
 python run.py
 ```
 
-Navigate to the Sign Up Page, and try to sign up. When complete you should be redirected to the homepage and see this
+Navigate to the Sign Up Page, and try to sign up. When complete you should be redirected to the homepage and see this.
+
 <img width="285" alt="image" src="https://user-images.githubusercontent.com/53978750/160509762-8f8d0b2d-dcc3-463e-a075-8d7d6454d4f8.png">
 
 This means the information was added to the database. To check this information for yourself, open up the shell from before, ensure you're logged in still, and
@@ -86,6 +87,7 @@ select * from studentssignup;
 ```
 
 The information stored should show up.
+
 <img width="332" alt="image" src="https://user-images.githubusercontent.com/53978750/160509868-ad45344e-a3c5-4c9b-bf8e-162076d8b9d4.png">
 
 Congratulations, the database is working, and you don't need to follow this guide anymore.
