@@ -18,6 +18,7 @@ class SignUpForm(FlaskForm):
 class LoanApplicationForm(FlaskForm):
     fname = StringField('First Name', validators=[InputRequired()])
     lname = StringField('Last Name', validators=[InputRequired()])
+    sex = StringField('Sex', validators=[InputRequired()])
     phone = StringField('Phone Number', validators=[InputRequired()])
     sid = StringField('Student ID', validators=[InputRequired()])
     trn = StringField('Student TRN', validators=[InputRequired()]) 

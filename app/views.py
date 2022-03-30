@@ -6,7 +6,7 @@ This file creates your application.
 """
 import os
 from app import app, db
-from app.models import SignUpProfile
+from app.models import *
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
 from .forms import *
@@ -100,8 +100,22 @@ def loanApplication():
     # Validate file upload on submit
     if request.method == 'POST' and applicationform.validate_on_submit():
         # Get file data and save to your uploads folder
-        photo=applicationform.image.data
+        loanapplication = LoanApplication( 
+            first_name = applicationform.fname.data,
+            last_name = applicationform.lname.data,
+            sex = applicationform.sex.data,
+            phonenumber= applicationform.phone.data,
+            sid = applicationform.sid.data,
+            trn = applicationform.trn.data,
+            address = applicationform.address.data,
+            email = applicationform.email.data,
+            photo=applicationform.photo.data
 
+        )
+        
+        db.session.add(loanapplication)
+        db.session.commit()
+        flash('added loan application')
         # filename=secure_filename(photo.filename)
         # photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
