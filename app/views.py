@@ -6,10 +6,10 @@ This file creates your application.
 """
 import os
 from app import app, db
-from app.models import *
+from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
-from .forms import *
+from app.forms import *
 from flask_mysqldb import MySQL
 
 # ##
@@ -116,8 +116,6 @@ def loanApplication():
         db.session.add(loanapplication)
         db.session.commit()
         flash('added loan application')
-        # filename=secure_filename(photo.filename)
-        # photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         flash('File Saved', 'success')
         return redirect(url_for('home'))
@@ -133,10 +131,87 @@ def guarantorForm():
     guarantorform= GuarantorForm()
     # Validate file upload on submit
     if request.method == 'POST' and guarantorform.validate_on_submit():
+        guarantor = Guarantor( 
+            first_name = guarantorform.gfname.data,
+            last_name = guarantorform.glname.data,
+            guarantor_occupation = guarantorform.goccupation.data, 
+            guarantor_phonenumber = guarantorform.gphone.data,
+            guarantor_salary = guarantorform.gsalary.data,
+            guarantor_address = guarantorform.gaddress.data,
+            loanid = guarantorform.loanid.data,
+            sid = guarantorform.sid.data
+        )
+        
+        db.session.add(guarantor)
+        print(guarantor)
+        db.session.commit()
+        
+        
         flash('Form Completed', 'success')
         return redirect(url_for('home'))
 
     return render_template('guarantorform.html', form=guarantorform)
+
+
+
+@app.route('/graphicalanalyticsform', methods=['POST', 'GET'])
+def graphicalAnalytics():
+  
+
+    # Instantiate your form class
+    graphicalanalyticsform= GraphicalAnalyticsForm()
+
+    if request.method == 'POST' and graphicalanalyticsform.validate_on_submit():
+       
+        graphicalanalytics = GraphicalAnalytics( 
+            loanid = graphicalanalyticsform.loanid.data,
+            sid = graphicalanalyticsform.sid.data
+            
+        )
+        
+        # Error here, new rows in database, need to migrate.
+                
+        db.session.add(graphicalanalytics)
+        print(graphicalanalytics)
+        db.session.commit()
+        flash('added')
+        
+        flash('File Saved', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('graphicalanalyticsform.html', form=graphicalanalyticsform)
+
+
+@app.route('/loananalyticsprioritizerform', methods=['POST', 'GET'])
+def loanAnalyticsPrioritizer():
+  
+
+    # Instantiate your form class
+    loananalyticsprioritizerform=LoanAnalyticsPrioritizerForm()
+
+    if request.method == 'POST' and loananalyticsprioritizerform.validate_on_submit():
+       
+        loananalyticsprioritizer = LoanPrioritization( 
+            loanid = loananalyticsprioritizerform.loanid.data,
+            priority_id = loananalyticsprioritizerform.priorityid.data,
+            interest= loananalyticsprioritizerform.interest.data
+        )
+        
+        # Error here, new rows in database, need to migrate.
+        
+        db.session.add(loananalyticsprioritizer)
+        print(loananalyticsprioritizer)
+        db.session.commit()
+        flash('added')
+        
+        flash('File Saved', 'success')
+        return redirect(url_for('home'))
+
+    return render_template('loananalyticsprioritizerform.html', form=loananalyticsprioritizerform)
+
+
+
+
 
 def get_uploaded_file():
     rootdir = os.getcwd()

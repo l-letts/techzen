@@ -123,26 +123,26 @@ class LoanAdmin(db.Model):
         self.email=email
         self.password=generate_password_hash(password,method='pbkdf2:sha256')
     
-class Gurantor(db.Model):
-    __tablename__ = 'gurantor'
+class Guarantor(db.Model):
+    __tablename__ = 'guarantor'
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80))
     last_name = db.Column(db.String(80))
-    gurantor_occupation = db.Column(db.String(80))
-    gurantor_phonenumber = db.Column(db.Integer)
-    gurantor_salary = db.Column(db.Float)
-    gurantor_address = db.Column(db.String(255))
+    guarantor_occupation = db.Column(db.String(80))
+    guarantor_phonenumber = db.Column(db.Integer)
+    guarantor_salary = db.Column(db.Float)
+    guarantor_address = db.Column(db.String(255))
     loanid = db.Column(db.String(80))
     sid = db.Column(db.String(80), primary_key = True)
     
 
-    def __init__(self, first_name, last_name, gurantor_occupation, gurantor_phonenumber, gurantor_salary,gurantor_address,loanid, sid):
+    def __init__(self, first_name, last_name, guarantor_occupation, guarantor_phonenumber, guarantor_salary,guarantor_address,loanid, sid):
         self.first_name = first_name
         self.last_name = last_name
-        self.gurantor_occupation = gurantor_occupation
-        self.gurantor_phonenumber = gurantor_phonenumber
-        self.gurantor_salary = gurantor_salary
-        self.gurantor_address = gurantor_address
+        self.guarantor_occupation = guarantor_occupation
+        self.guarantor_phonenumber = guarantor_phonenumber
+        self.guarantor_salary = guarantor_salary
+        self.guarantor_address = guarantor_address
         self.loanid = loanid
         self.sid = sid
         
@@ -151,10 +151,24 @@ class LoanPrioritization(db.Model):
     __tablename__ = 'loanprioritization'
     loanid = db.Column(db.String(80), primary_key = True)
     priority_id = db.Column(db.Integer)
+    interest = db.Column(db.Numeric(10,2))
    
 
-    def __init__(self, loanid, priority_id):
+    def __init__(self, loanid, priority_id, interest):
+            self.loanid = loanid
             self.priority_id = priority_id
+            self.interest = interest
+            
+            
+class GraphicalAnalytics(db.Model):
+    __tablename__ = 'graphicalanalytics'
+    loanid = db.Column(db.String(80), primary_key = True)
+    sid = db.Column(db.Integer)
+   
+
+    def __init__(self, loanid, sid):
+            self.loanid = loanid
+            self.sid = sid
         
 class Payment(db.Model):
     __tablename__ = 'payment'
