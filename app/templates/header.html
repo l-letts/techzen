@@ -13,11 +13,23 @@
         <a class="nav-link" href="{{ url_for('about') }}">About</a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('payment') }}">Payment</a>
+      </li>
+      <li class="nav-item">
           <a class="nav-link" href="{{ url_for('loanApplication') }}">Loan Application</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{ url_for('guarantorForm') }}">Guarantor Form</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('graphicalAnalytics') }}">Graphs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{{ url_for('loanAnalyticsPrioritizer') }}">Analytics</a>
+</li>
       <li class="nav-item">
         <a class="nav-link" href="{{ url_for('files') }}">View Images</a>
     </li>

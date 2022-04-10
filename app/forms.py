@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
 from wtforms.widgets import TextArea
-from wtforms import StringField, PasswordField, TextAreaField,SelectField, IntegerField
+from wtforms import StringField, PasswordField, TextAreaField,SelectField, IntegerField, DateField
 from wtforms.validators import InputRequired, DataRequired, Email
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
@@ -25,6 +25,7 @@ class LoanApplicationForm(FlaskForm):
     address = StringField('Address', validators=[InputRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()], description='Please enter your email address.')
     photo = FileField('Photo',validators=[FileRequired(), FileAllowed(['jpg','png'], 'Please Upload Your Image Only!')])
+    selfie = FileField('Photo',validators=[FileRequired(), FileAllowed(['jpg','png'], 'Please Upload Your Selfie Only!')])
    
 class GuarantorForm(FlaskForm):
     gfname = StringField('First Name', validators=[InputRequired()])
@@ -47,3 +48,9 @@ class LoanAnalyticsPrioritizerForm(FlaskForm):
     priorityid = StringField('Priority ID', validators=[InputRequired()])
     interest = IntegerField('Interest', validators=[InputRequired()])
     
+class PaymentForm(FlaskForm):
+    sid = StringField('Student ID', validators=[InputRequired()])
+    loanid = StringField('Loan ID', validators=[InputRequired()])
+    paymentamount = StringField('Payment Amount', validators=[InputRequired()])
+    paymentdate = StringField('Date', validators=[InputRequired()])
+    paymentid = StringField('Payment ID', validators=[InputRequired()])

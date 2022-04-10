@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: cbd4696cce97
+Revision ID: 621c016ed26a
 Revises: 
-Create Date: 2022-03-28 18:36:48.644443
+Create Date: 2022-04-10 17:03:26.291740
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cbd4696cce97'
+revision = '621c016ed26a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,17 +32,22 @@ def upgrade():
     sa.Column('cscore', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('sid')
     )
-    op.create_table('gurantor',
-    sa.Column('id', sa.Integer(), nullable=False),
+    op.create_table('graphicalanalytics',
+    sa.Column('loanid', sa.String(length=80), nullable=False),
+    sa.Column('sid', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('loanid')
+    )
+    op.create_table('guarantor',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('first_name', sa.String(length=80), nullable=True),
     sa.Column('last_name', sa.String(length=80), nullable=True),
-    sa.Column('gurantor_occupation', sa.String(length=80), nullable=True),
-    sa.Column('gurantor_phonenumber', sa.Integer(), nullable=True),
-    sa.Column('gurantor_salary', sa.Float(), nullable=True),
-    sa.Column('gurantor_address', sa.String(length=255), nullable=True),
+    sa.Column('guarantor_occupation', sa.String(length=80), nullable=True),
+    sa.Column('guarantor_phonenumber', sa.Integer(), nullable=True),
+    sa.Column('guarantor_salary', sa.Float(), nullable=True),
+    sa.Column('guarantor_address', sa.String(length=255), nullable=True),
     sa.Column('loanid', sa.String(length=80), nullable=True),
-    sa.Column('sid', sa.String(length=80), nullable=False),
-    sa.PrimaryKeyConstraint('id', 'sid')
+    sa.Column('sid', sa.String(length=80), nullable=True),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('loan',
     sa.Column('loanid', sa.String(length=80), nullable=False),
@@ -63,17 +68,19 @@ def upgrade():
     op.create_table('loanprioritization',
     sa.Column('loanid', sa.String(length=80), nullable=False),
     sa.Column('priority_id', sa.Integer(), nullable=True),
+    sa.Column('interest', sa.Numeric(precision=10, scale=2), nullable=True),
     sa.PrimaryKeyConstraint('loanid')
     )
     op.create_table('payment',
-    sa.Column('sid', sa.String(length=80), nullable=False),
-    sa.Column('loanid', sa.String(length=80), nullable=False),
+    sa.Column('sid', sa.String(length=80), nullable=True),
+    sa.Column('loanid', sa.String(length=80), nullable=True),
     sa.Column('payment_amount', sa.Integer(), nullable=True),
-    sa.Column('paymemt_date', sa.Date(), nullable=True),
-    sa.PrimaryKeyConstraint('sid', 'loanid')
+    sa.Column('payment_date', sa.String(length=80), nullable=True),
+    sa.Column('paymentid', sa.String(length=80), nullable=False),
+    sa.PrimaryKeyConstraint('paymentid')
     )
     op.create_table('student',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('first_name', sa.String(length=80), nullable=True),
     sa.Column('last_name', sa.String(length=80), nullable=True),
     sa.Column('sex', sa.String(length=80), nullable=True),
@@ -116,7 +123,8 @@ def downgrade():
     op.drop_table('loanprioritization')
     op.drop_table('loanadmin')
     op.drop_table('loan')
-    op.drop_table('gurantor')
+    op.drop_table('guarantor')
+    op.drop_table('graphicalanalytics')
     op.drop_table('creditscore')
     op.drop_table('contract')
     # ### end Alembic commands ###

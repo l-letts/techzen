@@ -6,11 +6,14 @@ This file creates your application.
 """
 import os
 from app import app, db
-from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication
+from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
 from app.forms import *
 from flask_mysqldb import MySQL
+import requests
+import json
+
 
 # ##
 # Routing for your application.
@@ -43,9 +46,36 @@ def about():
     """Render the website's about page."""
     return render_template('about.html', name="TechZen")
 
-@app.route('/check')
-def check():
-    return render_template('check.html', values= SignUpProfile.query.all())
+@app.route('/payment', methods=['POST', 'GET'])
+def payment():
+    """Render the website's payment."""
+    paymentform =PaymentForm()
+    # Validate file upload on submit
+    if request.method == 'POST' and paymentform.validate_on_submit():
+        
+        payment = Payment( 
+            sid = paymentform.sid.data,
+            loanid = paymentform.loanid.data,
+            payment_amount= paymentform.paymentamount.data,
+            payment_date= paymentform.paymentdate.data,
+            paymentid= paymentform.paymentid.data
+        )
+        
+        db.session.add(payment)
+
+        db.session.commit()
+        flash('added payment')
+       
+        flash('File Saved', 'success')
+        return redirect(url_for('home'))
+    
+    return render_template('payment.html', form=paymentform)
+
+@app.route('/dashboard')
+def dashboard():
+    # value1 = payment.query()
+    chartvalue = [5000,2000, 7000]
+    return render_template('dashboard.html', values = json.dumps(chartvalue))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -112,6 +142,43 @@ def loanApplication():
             photo=applicationform.photo.data
 
         )
+        selfie = applicationform.selfie.data
+
+        # API Call
+
+        # url = "https://face-verification2.p.rapidapi.com/FaceVerification"
+
+        # payload = 
+        # headers = {
+        #     "content-type": "multipart/form-data; boundary=---011000010111000001101001",
+        #     "X-RapidAPI-Host": "face-verification2.p.rapidapi.com",
+        #     "X-RapidAPI-Key": "198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe"
+        # }
+
+        # response = requests.request("POST", url, data=payload, headers=headers)
+
+        # print(response.text)
+        
+        # flash(response.text)
+        
+        
+        
+        # api_url = 'https://face-verification2.p.rapidapi.com/FaceVerification'
+        # api_key = '198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe'
+
+        # image1_path = 'Path to image1 directory'
+        # image1_name = 'Image name1'
+        # image2_path = 'Path to image2 directory'
+        # image2_name = 'Image name2'
+
+        # files = {'Photo1': (image1_name, open(image1_path + image1_name, 'rb'), 'multipart/form-data'), 
+        #         'Photo2': (image2_name, open(image2_path + image2_name, 'rb'), 'multipart/form-data')}
+        # header = {
+        #     "x-rapidapi-host": "face-recognition4.p.rapidapi.com",
+        #     "x-rapidapi-key": "198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe"
+        # }
+        # response = requests.post(api_url, files=files, headers=header)
+                
         
         db.session.add(loanapplication)
         db.session.commit()
@@ -157,6 +224,9 @@ def guarantorForm():
 @app.route('/graphicalanalyticsform', methods=['POST', 'GET'])
 def graphicalAnalytics():
   
+    # day 1 principal = 5000
+    # day 2 principal = 2000
+    
 
     # Instantiate your form class
     graphicalanalyticsform= GraphicalAnalyticsForm()
