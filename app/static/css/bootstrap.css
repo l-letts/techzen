@@ -50,6 +50,19 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* techzencss ------------------------------------------------------------------------------------------ */
+.register-form, .loan-app, .guaran-app{
+
+  width: 70%;
+      margin: auto auto;
+      text-align: -webkit-center;
+      margin-top: 5%;
+  padding: 50px;
+  border-style: groove
+};
+
+/* techzencss ------------------------------------------------------------------------------------------ */
+
 @-ms-viewport {
   width: device-width;
 }
@@ -1956,7 +1969,7 @@ pre code {
 
 .form-control {
   display: block;
-  width: 100%;
+  width: 50%;
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   line-height: 1.5;
@@ -2503,8 +2516,8 @@ fieldset:disabled a.btn {
 
 .btn-primary {
   color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  background-color: #bc230c;
+  border-color: #bc230c;
 }
 
 .btn-primary:hover {
@@ -3084,7 +3097,7 @@ fieldset:disabled a.btn {
 
 .btn-block {
   display: block;
-  width: 100%;
+  width: 20%;
 }
 
 .btn-block + .btn-block {
@@ -6075,7 +6088,7 @@ button.close {
 }
 
 .bg-primary {
-  background-color: #007bff !important;
+  background-color: #bc230c !important;
 }
 
 a.bg-primary:hover, a.bg-primary:focus,
