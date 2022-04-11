@@ -1,0 +1,35 @@
+body {
+    padding-top: 5rem;
+}
+
+.gallery{
+    display: grid;
+    grid-template-columns: 365px 365px 365px;
+    grid-template-rows: 315px 315px;
+}
+.images{
+    width: 350px;
+    height:300px;
+    object-fit: cover;
+    
+}
+
+.form-login { 
+        width: 50%;
+        margin: auto auto;
+        text-align: -webkit-center;
+        margin-top: 5%;
+    padding: 50px;
+    border-style: groove
+        
+};
+
+ .form-group, .register-form{
+
+    width: 50%;
+        margin: auto auto;
+        text-align: -webkit-center;
+        margin-top: 5%;
+    padding: 50px;
+    border-style: groove
+};

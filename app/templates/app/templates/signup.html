@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h3 style="color:red;margin-top: 5%;text-align: center;" class="page-header">TECHZEN FINANCIAL</h3>
+
+{% include 'flash_messages.html' %}
+
+
+{# Add the appropriate method and enctype attributes to the form tag to allow for file uploads #}
+<form action="{{ url_for('register') }}" method="post" enctype="multipart/form-data">
+
+  {{ form.csrf_token }}
+  
+  {# Add the file upload field as you learnt for Flask-WTF #}
+  <div class="register-form">
+    <div class="form-group">
+    {{ form.fname.label }} {{ form.fname(class="form-control") }}
+    {{ form.lname.label }} {{ form.lname(class="form-control") }}
+    {{ form.username.label }} {{ form.username(class="form-control") }}
+    {{ form.email.label }} {{ form.email(class="form-control") }}
+    {{ form.password.label }} {{ form.password(class="form-control") }}   
+    </div>
+    <button type="submit" name="submit" class="btn btn-primary">Register</button>
+  </div>
+      </form>
+      
+  
+
+
+{% endblock %}

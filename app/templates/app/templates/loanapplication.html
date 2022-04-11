@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1 class="page-header">Loan Application</h1>
+
+{% include 'flash_messages.html' %}
+
+
+{# Add the appropriate method and enctype attributes to the form tag to allow for file uploads #}
+<form action="{{ url_for('loanApplication') }}" method="post" enctype="multipart/form-data">
+
+  {{ form.csrf_token }}
+  
+  {# Add the file upload field as you learnt for Flask-WTF #}
+  <div class="loan-app">
+  <div class="form-group">
+    {{ form.fname.label }} {{ form.fname(class="form-control") }}
+    {{ form.lname.label }} {{ form.lname(class="form-control") }}
+    {{ form.sex.label}} {{form.sex(class="form-control")}}
+    {{ form.phone.label }} {{ form.phone(class="form-control") }}
+    {{ form.sid.label }} {{ form.sid(class="form-control") }}
+    {{ form.trn.label }} {{ form.trn(class="form-control") }}
+    {{ form.address.label }} {{ form.address(class="form-control") }}
+    {{ form.email.label }} {{ form.email(class="form-control") }}
+    {{ form.photo.label }} {{ form.photo(class="form-control") }}
+    
+  </div>
+  <button type="submit" name="submit" class="btn btn-primary">Upload file</button>
+  </div>>
+</form>
+  </div>
+
+
+{% endblock %}
