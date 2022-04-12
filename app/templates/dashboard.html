@@ -1,6 +1,27 @@
 {% extends 'base.html' %}
 
 {% block main %}
+
+<!---->
+<h1 class="prop-header">Properties</h1>
+
+<div id="properties">
+  {% for pay in paymentval %}
+  
+    <div class="property-desc">
+      <p>{{ pay.sid }}</p>
+      <p>{{ pay.loanid }}</p>
+      <p>{{ pay.payment_amount }}</p>
+      <p>{{ pay.payment_date }}</p>
+      <p>{{ pay.paymentid }}</p>
+      
+    
+  </div>
+  {% endfor %}
+</div>
+<!-- -->
+
+
   <div>
     <canvas id="myChart"></canvas>
   </div>

@@ -10,6 +10,7 @@ from app import app, db
 from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
 from app.forms import *
 from flask_mysqldb import MySQL
 from flask_sqlalchemy import SQLAlchemy
@@ -76,12 +77,10 @@ def payment():
 
 @app.route('/dashboard')
 def dashboard():
-    # value1 = payment.query()
-    # foundvalue = Payment.query.all()
-    # shares = db.session.query(PhotoShare).all()
-    # valuefound = db.session.execute('select * from payment where payment.payment_amount').all()
-    # flash(valuefound)
-    # flash(foundvalue)
+    
+    #this works
+    foundvalue = Payment.query.all()
+    
     avgpay = 50000
     overallloan= 500000
     temploanamount = overallloan
@@ -109,7 +108,7 @@ def dashboard():
             
     chartvalue = [0, 5000,6000, 7000]
     
-    return render_template('dashboard.html', values = json.dumps(chartvalue), avgpay=json.dumps(avgpay), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+    return render_template('dashboard.html', paymentval=foundvalue, values = json.dumps(chartvalue), avgpay=json.dumps(avgpay), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -342,14 +341,24 @@ def files():
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     error = None
+
     if request.method == 'POST':
-        if request.form['username'] != app.config['ADMIN_USERNAME'] or request.form['password'] != app.config['ADMIN_PASSWORD']:
-            error = 'Invalid username or password'
-        else:
-            session['logged_in'] = True
+        
+        if request.form['username']:
+            username = request.form['username']
+            password = request.form['password']
             
-            flash('You were logged in', 'success')
-            return redirect(url_for('home'))
+            user = SignUpProfile.query.filter_by(username=username).first()
+            if user is not None and check_password_hash(user.password, password):
+                session['logged_in'] = True
+                flash('Successfully logged in', 'success')
+                return redirect(url_for('home'))
+            
+            
+            else:
+                error = 'Invalid username or password'
+                flash(error)
+                
     return render_template('login.html', error=error)
 
 
