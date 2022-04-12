@@ -12,6 +12,7 @@
   {{ form.csrf_token }}
   
   {# Add the file upload field as you learnt for Flask-WTF #}
+  <div class="guaran-app">
   <div class="form-group">
     {{ form.gfname.label }} {{ form.gfname(class="form-control") }}
     {{ form.glname.label }} {{ form.glname(class="form-control") }}
@@ -24,6 +25,7 @@
 
     </div>
     <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+    </div>>
 </form>
   </div>
 

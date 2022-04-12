@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block main %}
+  <div>
+    <canvas id="paymenthistory"></canvas>
+  </div>
+  <div>
+    <canvas id="projectloan"></canvas>
+  </div>
+  
+  <script>
+    let chartval = JSON.parse({{ values | tojson }});
+    const labels = [
+      'Day1',
+      'Day2',
+      'Day3',
+    ];
+  
+    const data = {
+      labels: labels,
+      datasets: [{
+        label: 'Principal Remaining',
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgb(255, 99, 132)',
+        data: chartval
+      }]
+    };
+  
+    const config = {
+      type: 'line',
+      data: data,
+      options: {}
+    };
+  </script>
+  <script>
+    const paymentHistory = new Chart(
+      document.getElementById('paymenthistory'),
+      config
+    );
+  </script>
+    
+
+
+  <div>
+    <canvas id="projectloan"></canvas>
+  </div>
+  
+  <script>
+    let avgpay = JSON.parse({{ avgpay | tojson }});
+    let overall = JSON.parse({{ overall | tojson }});
+    let loanpay = JSON.parse({{ loanpay | tojson }});
+    let days = JSON.parse({{ days | tojson }});
+    const labels = days;
+  
+    const data = {
+      labels: labels,
+      datasets: [{
+        label: 'Loan Projection',
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgb(255, 99, 132)',
+        data: loanpay
+      }]
+    };
+  
+    const config = {
+      type: 'line',
+      data: data,
+      options: {}
+    };
+  </script>
+  <script>
+    const loanprojection = new Chart(
+      document.getElementById('projectloan'),
+      config
+    );
+  </script>
+
+{% endblock %}

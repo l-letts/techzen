@@ -1,40 +1,85 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<div>
+  <div>
     <canvas id="myChart"></canvas>
   </div>
+  <div>
+    <canvas id="myChart2"></canvas>
+  </div>
+  <div>
+    <canvas id="myChart3"></canvas>
+  </div>
+  
+
   
   <script>
+    const ctx = document.getElementById('myChart');
+    const ctx2 = document.getElementById('myChart2');
+    const ctx3 = document.getElementById('myChart3');
+
     let chartval = JSON.parse({{ values | tojson }});
+    let days = JSON.parse({{ days | tojson }});
     const labels = [
       'Day1',
       'Day2',
       'Day3',
     ];
-  
-    const data = {
-      labels: labels,
-      datasets: [{
-        label: 'Principal Remaining',
-        backgroundColor: 'rgb(255, 99, 132)',
-        borderColor: 'rgb(255, 99, 132)',
-        data: chartval
-      }]
-    };
-  
-    const config = {
+    const myChart = new Chart(ctx, {
       type: 'line',
-      data: data,
-      options: {}
-    };
-  </script>
-  <script>
-    const myChart = new Chart(
-      document.getElementById('myChart'),
-      config
-    );
-  </script>
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Payment History',
+          data: chartval,
+          backgroundColor: 'rgb(0, 99, 132)',
+          borderColor: 'rgb(60, 99, 132)',
+          fill: true,
+          borderWidth: 1,
+        }]
+      },
+    });
+
+    let avgpay = JSON.parse({{ avgpay | tojson }});
+    let overall = JSON.parse({{ overall | tojson }});
+    let loanpay = JSON.parse({{ loanpay | tojson }});
+    
+    const myChart2 = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Loan Projection',
+          data: loanpay,
+          fill: false,
+          backgroundColor: 'rgb(255, 99, 132)',
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: 1,
+        }]
+      },
+    });
+
+    let interest = JSON.parse({{ interest | tojson }});
+
+    const myChart3 = new Chart(ctx3, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Interest',
+          data: interest,
+          backgroundColor: 'rgb(0, 180, 100)',
+          borderColor: 'rgb(0, 180, 100)',
+          fill: true,
+          borderWidth: 1,
+        }]
+      },
+    });
+
+    
+  </script
+
+    
     
 
 {% endblock %}

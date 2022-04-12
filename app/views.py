@@ -4,6 +4,7 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
+from audioop import avg
 import os
 from app import app, db
 from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment
@@ -11,8 +12,10 @@ from flask import render_template, request, redirect, url_for, flash, session, a
 from werkzeug.utils import secure_filename
 from app.forms import *
 from flask_mysqldb import MySQL
+from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
+
 
 
 # ##
@@ -74,8 +77,39 @@ def payment():
 @app.route('/dashboard')
 def dashboard():
     # value1 = payment.query()
-    chartvalue = [5000,2000, 7000]
-    return render_template('dashboard.html', values = json.dumps(chartvalue))
+    # foundvalue = Payment.query.all()
+    # shares = db.session.query(PhotoShare).all()
+    # valuefound = db.session.execute('select * from payment where payment.payment_amount').all()
+    # flash(valuefound)
+    # flash(foundvalue)
+    avgpay = 50000
+    overallloan= 500000
+    temploanamount = overallloan
+    loanpay = []
+    days = []
+    i = 0
+    interestrate = 0.06
+    interest = 0
+    interestprojection = []
+
+    while (temploanamount-avgpay) > 0:
+        i += 1
+        loanpay.append(temploanamount-avgpay)
+        days.append("Day " + str(i))
+        temploanamount = temploanamount-avgpay
+        interest = temploanamount * interestrate
+        temploanamount = temploanamount + interest
+        interestprojection.append(interest) 
+        
+        
+    if (temploanamount-avgpay) < 0:
+            temploanamount = temploanamount - temploanamount
+            loanpay.append(0)
+            days.append("Day " + str(i+1))     
+            
+    chartvalue = [0, 5000,6000, 7000]
+    
+    return render_template('dashboard.html', values = json.dumps(chartvalue), avgpay=json.dumps(avgpay), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():

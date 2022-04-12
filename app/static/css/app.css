@@ -13,3 +13,23 @@ body {
     object-fit: cover;
     
 }
+
+.form-login { 
+        width: 50%;
+        margin: auto auto;
+        text-align: -webkit-center;
+        margin-top: 5%;
+    padding: 50px;
+    border-style: groove
+        
+};
+
+ .form-group, .register-form{
+
+    width: 50%;
+        margin: auto auto;
+        text-align: -webkit-center;
+        margin-top: 5%;
+    padding: 50px;
+    border-style: groove
+};

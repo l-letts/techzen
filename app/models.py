@@ -102,9 +102,9 @@ class Loan(db.Model):
     loan_status = db.Column(db.String(255))
 
     def __init__(self, loanid, loan_type, date, loan_status):
-            self.loan_type = loan_type
-            self.date = date
-            self.loan_status = loan_status
+        self.loan_type = loan_type
+        self.date = date
+        self.loan_status = loan_status
 
 
 class LoanAdmin(db.Model):
@@ -157,9 +157,9 @@ class LoanPrioritization(db.Model):
    
 
     def __init__(self, loanid, priority_id, interest):
-            self.loanid = loanid
-            self.priority_id = priority_id
-            self.interest = interest
+        self.loanid = loanid
+        self.priority_id = priority_id
+        self.interest = interest
             
             
 class GraphicalAnalytics(db.Model):
@@ -169,8 +169,8 @@ class GraphicalAnalytics(db.Model):
    
 
     def __init__(self, loanid, sid):
-            self.loanid = loanid
-            self.sid = sid
+        self.loanid = loanid
+        self.sid = sid
         
 class Payment(db.Model):
     __tablename__ = 'payment'
@@ -182,11 +182,11 @@ class Payment(db.Model):
    
 
     def __init__(self, sid, loanid, payment_amount, payment_date, paymentid):
-            self.sid = sid
-            self.loanid = loanid
-            self.payment_amount = payment_amount
-            self.payment_date = payment_date
-            self.paymentid = paymentid
+        self.sid = sid
+        self.loanid = loanid
+        self.payment_amount = payment_amount
+        self.payment_date = payment_date
+        self.paymentid = paymentid
 
 
 
