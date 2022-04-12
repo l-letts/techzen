@@ -36,7 +36,7 @@ class LoanApplication(db.Model):
     trn = db.Column(db.String(1000))
     address = db.Column(db.String(255))
     email = db.Column(db.String(255))
-    photo = db.Column(db.LargeBinary)
+    photo = db.Column(db.String(255))
     
 
     def __init__(self, first_name, last_name, sex, phonenumber, sid, trn, address,email, photo):
@@ -187,6 +187,20 @@ class Payment(db.Model):
         self.payment_amount = payment_amount
         self.payment_date = payment_date
         self.paymentid = paymentid
+        
+class Img(db.Model):
+    __tablename__ = 'image'
+    sid = db.Column(db.String(80))
+    imageid = db.Column(db.Integer, primary_key=True)
+    img = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    mimetype = db.Column(db.Text, nullable=True)
+    
+    def __init__(self, sid, img, name, mimetype):
+        self.sid = sid
+        self.img = img
+        self.name = name
+        self.mimetype = mimetype
 
 
 

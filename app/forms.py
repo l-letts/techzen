@@ -25,7 +25,7 @@ class LoanApplicationForm(FlaskForm):
     address = StringField('Address', validators=[InputRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()], description='Please enter your email address.')
     photo = FileField('Photo',validators=[FileRequired(), FileAllowed(['jpg','png'], 'Please Upload Your Image Only!')])
-    selfie = FileField('Photo',validators=[FileRequired(), FileAllowed(['jpg','png'], 'Please Upload Your Selfie Only!')])
+    selfie = FileField('Selfie',validators=[FileRequired(), FileAllowed(['jpg','png'], 'Please Upload Your Selfie Only!')])
    
 class GuarantorForm(FlaskForm):
     gfname = StringField('First Name', validators=[InputRequired()])

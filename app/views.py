@@ -7,8 +7,8 @@ This file creates your application.
 from audioop import avg
 import os
 from app import app, db
-from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment
-from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
+from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Img
+from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory, Response
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
 from app.forms import *
@@ -16,6 +16,7 @@ from flask_mysqldb import MySQL
 from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
+import uuid as uuid
 
 
 
@@ -161,8 +162,24 @@ def loanApplication():
     # Instantiate your form class
     applicationform=LoanApplicationForm()
     # Validate file upload on submit
-    if request.method == 'POST' and applicationform.validate_on_submit():
+    if request.method == 'POST' :
         # Get file data and save to your uploads folder
+        photo = applicationform.photo.data
+        photo2 = applicationform.selfie.data
+        sid = applicationform.sid.data
+        root_dir = os.getcwd()
+
+        filename = str(sid) + "_A_" + secure_filename(photo.filename)
+        photo.save(os.path.join(
+            app.config['UPLOAD_FOLDER'], filename
+        ))
+        print(filename)
+        
+        filename2 = str(sid) + "_B_" + secure_filename(photo2.filename)
+        photo2.save(os.path.join(
+            app.config['UPLOAD_FOLDER'], filename2
+        ))
+        
         loanapplication = LoanApplication( 
             first_name = applicationform.fname.data,
             last_name = applicationform.lname.data,
@@ -172,16 +189,17 @@ def loanApplication():
             trn = applicationform.trn.data,
             address = applicationform.address.data,
             email = applicationform.email.data,
-            photo=applicationform.photo.data
+            photo= filename
 
         )
-        selfie = applicationform.selfie.data
-
+        
+        
         # API Call
+
 
         # url = "https://face-verification2.p.rapidapi.com/FaceVerification"
 
-        # payload = 
+        # payload = f"-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"{os.path.join(root_dir, './uploads/') + filename}\"\r\n\r\n\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"{os.path.join(root_dir, './uploads/') + filename}\"\r\n\r\n\r\n-----011000010111000001101001--\r\n\r\n"
         # headers = {
         #     "content-type": "multipart/form-data; boundary=---011000010111000001101001",
         #     "X-RapidAPI-Host": "face-verification2.p.rapidapi.com",
@@ -192,25 +210,25 @@ def loanApplication():
 
         # print(response.text)
         
-        # flash(response.text)
-        
         
         
         # api_url = 'https://face-verification2.p.rapidapi.com/FaceVerification'
         # api_key = '198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe'
-
-        # image1_path = 'Path to image1 directory'
-        # image1_name = 'Image name1'
-        # image2_path = 'Path to image2 directory'
-        # image2_name = 'Image name2'
+        
+        # root_dir = os.getcwd()
+        # image1_path =  os.path.join(root_dir, './uploads/')
+        # image1_name = filename
+        # image2_path = os.path.join(root_dir, './uploads/')
+        # image2_name = filename2
 
         # files = {'Photo1': (image1_name, open(image1_path + image1_name, 'rb'), 'multipart/form-data'), 
         #         'Photo2': (image2_name, open(image2_path + image2_name, 'rb'), 'multipart/form-data')}
         # header = {
         #     "x-rapidapi-host": "face-recognition4.p.rapidapi.com",
-        #     "x-rapidapi-key": "198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe"
+        #     "x-rapidapi-key": api_key
         # }
         # response = requests.post(api_url, files=files, headers=header)
+        # print(response.text)
                 
         
         db.session.add(loanapplication)
@@ -222,6 +240,13 @@ def loanApplication():
 
     return render_template('loanapplication.html', form=applicationform)
 
+@app.route('/<int:id>')
+def get_img(id):
+    img = Img.query.filter_by(sid=id).first()
+    
+    return Response(img.img, mimetype=img.mimetype)
+    
+    
 @app.route('/guarantor', methods=['POST', 'GET'])
 def guarantorForm():
     # if not session.get('logged_in'):
@@ -251,6 +276,7 @@ def guarantorForm():
         return redirect(url_for('home'))
 
     return render_template('guarantorform.html', form=guarantorform)
+
 
 
 
