@@ -40,6 +40,8 @@ class GuarantorForm(FlaskForm):
     
 class GraphicalAnalyticsForm(FlaskForm):
     loanid = StringField('Loan ID', validators=[InputRequired()])
+    loanamount = IntegerField('Loan Amount', validators=[InputRequired()])
+    interestrate = IntegerField('Interest Rate', validators=[InputRequired()])
     sid = StringField('Student ID', validators=[InputRequired()])
     
     

@@ -165,11 +165,15 @@ class LoanPrioritization(db.Model):
 class GraphicalAnalytics(db.Model):
     __tablename__ = 'graphicalanalytics'
     loanid = db.Column(db.String(80), primary_key = True)
+    loanamount = db.Column(db.Integer)
+    interestrate = db.Column(db.Integer)
     sid = db.Column(db.Integer)
    
 
-    def __init__(self, loanid, sid):
+    def __init__(self, loanid, loanamount, interestrate, sid):
         self.loanid = loanid
+        self.loanamount = loanamount
+        self.interestrate = interestrate
         self.sid = sid
         
 class Payment(db.Model):

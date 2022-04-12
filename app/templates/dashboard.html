@@ -2,7 +2,7 @@
 
 {% block main %}
 
-<!---->
+<!--
 <h1 class="prop-header">Properties</h1>
 
 <div id="properties">
@@ -19,16 +19,21 @@
   </div>
   {% endfor %}
 </div>
-<!-- -->
+-->
 
 
   <div>
+    <h1 class="history">Payment History</h1>
     <canvas id="myChart"></canvas>
   </div>
   <div>
+    <h1 class="projection">Projected Loan</h1>
+    <p> This is the projected time required to pay back the loan, based on average pay, and interest rate. </p>
     <canvas id="myChart2"></canvas>
   </div>
   <div>
+    <h1 class="interest">Interest</h1>
+    <p> This is the interest accrued over the time frame. </p>
     <canvas id="myChart3"></canvas>
   </div>
   
@@ -41,6 +46,7 @@
 
     let chartval = JSON.parse({{ values | tojson }});
     let days = JSON.parse({{ days | tojson }});
+    let paymentlst = JSON.parse({{ paymentlst | tojson }});
     const labels = [
       'Day1',
       'Day2',
@@ -52,7 +58,7 @@
         labels: days,
         datasets: [{
           label: 'Payment History',
-          data: chartval,
+          data: paymentlst,
           backgroundColor: 'rgb(0, 99, 132)',
           borderColor: 'rgb(60, 99, 132)',
           fill: true,
@@ -61,7 +67,7 @@
       },
     });
 
-    let avgpay = JSON.parse({{ avgpay | tojson }});
+
     let overall = JSON.parse({{ overall | tojson }});
     let loanpay = JSON.parse({{ loanpay | tojson }});
     

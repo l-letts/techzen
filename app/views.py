@@ -76,19 +76,49 @@ def payment():
     
     return render_template('payment.html', form=paymentform)
 
+def average(lst):
+    return sum(lst) / len(lst)
+
 @app.route('/dashboard')
 def dashboard():
     
     #this works
+    currentsid = '12345'
+    # grabs the payment data
+    paymentlist = []
     foundvalue = Payment.query.all()
+    loandetails = GraphicalAnalytics.query.all()
+    #iterates through the list and appends payment number
+    for x in foundvalue:
+        if x.sid == currentsid:
+            paymentlist.append(x.payment_amount)
     
-    avgpay = 50000
-    overallloan= 500000
+    # Averages payment so we can tell how much paid monthly
+    avgpayment = average(paymentlist)
+    print("avg pay =", int(avgpayment))
+    
+    # if avgpayment is below the minimum payback, the minimum payback value is used
+    # This is because, if the value is below the interest, then there will be no progress made
+    # towards paying off the loan. The minimum value in this case, is the interest accrued, + 5000 for good measure.
+    overallloan= loandetails[0].loanamount
+    minimumpayback = (overallloan * 0.06) + 5000
+    print("minimum payback is: ", minimumpayback)
+
+    if avgpayment < minimumpayback:
+        avgpayment = minimumpayback
+        
+    print(paymentlist)
+    
+    print(loandetails[0].interestrate / 100)
+    # user = SignUpProfile.query.filter_by(username=username).first()
+    
+    # avgpay is equal to the average payment made.
+    avgpay = avgpayment
     temploanamount = overallloan
     loanpay = []
     days = []
     i = 0
-    interestrate = 0.06
+    interestrate = loandetails[0].interestrate / 100
     interest = 0
     interestprojection = []
 
@@ -109,7 +139,7 @@ def dashboard():
             
     chartvalue = [0, 5000,6000, 7000]
     
-    return render_template('dashboard.html', paymentval=foundvalue, values = json.dumps(chartvalue), avgpay=json.dumps(avgpay), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+    return render_template('dashboard.html', paymentval=foundvalue, paymentlst=json.dumps(paymentlist), values = json.dumps(chartvalue), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -240,11 +270,7 @@ def loanApplication():
 
     return render_template('loanapplication.html', form=applicationform)
 
-@app.route('/<int:id>')
-def get_img(id):
-    img = Img.query.filter_by(sid=id).first()
-    
-    return Response(img.img, mimetype=img.mimetype)
+
     
     
 @app.route('/guarantor', methods=['POST', 'GET'])
@@ -294,6 +320,8 @@ def graphicalAnalytics():
        
         graphicalanalytics = GraphicalAnalytics( 
             loanid = graphicalanalyticsform.loanid.data,
+            loanamount = graphicalanalyticsform.loanamount.data,
+            interestrate = graphicalanalyticsform.interestrate.data,
             sid = graphicalanalyticsform.sid.data
             
         )
