@@ -91,11 +91,13 @@ def dashboard():
     paymentlist = []
     foundvalue = Payment.query.all()
     loandetails = GraphicalAnalytics.query.all()
+
     #iterates through the list and appends payment number
     for x in foundvalue:
         if x.sid == currentsid:
             paymentlist.append(x.payment_amount)
-    
+        
+    print(paymentlist)
     # Averages payment so we can tell how much paid monthly
     avgpayment = average(paymentlist)
     print("avg pay =", int(avgpayment))
