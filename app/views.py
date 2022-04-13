@@ -45,6 +45,10 @@ def home():
     """Render website's home page."""
     return render_template('home.html')
 
+@app.route('/application')
+def application():
+    """Render website's home page."""
+    return render_template('application.html')
 
 @app.route('/about/')
 def about():
@@ -69,10 +73,9 @@ def payment():
         db.session.add(payment)
 
         db.session.commit()
-        flash('added payment')
-       
-        flash('File Saved', 'success')
-        return redirect(url_for('home'))
+
+        flash('Payment successful!', 'success')
+        return redirect(url_for('dashboard'))
     
     return render_template('payment.html', form=paymentform)
 
@@ -171,7 +174,6 @@ def register():
         db.session.add(signup)
         print(signup)
         db.session.commit()
-        flash('added')
         # my_cursor.execute('''INSERT INTO studentssignup VALUES(%s,%s,%s,%s,%s)''', (fname,lname,username,email,password))
         # mysql.connection.commmit()
         # my_cursor.close()        
@@ -179,8 +181,8 @@ def register():
         # filename=secure_filename(photo.filename)
         # photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        flash('File Saved', 'success')
-        return redirect(url_for('home'))
+        flash('Registration Successful! Please Login below.', 'success')
+        return redirect(url_for('login'))
 
     return render_template('signup.html', form=registerform)
 
@@ -263,10 +265,8 @@ def loanApplication():
         
         db.session.add(loanapplication)
         db.session.commit()
-        flash('added loan application')
-
-        flash('File Saved', 'success')
-        return redirect(url_for('home'))
+        flash('Student Information saved!', 'success')
+        return redirect(url_for('application'))
 
     return render_template('loanapplication.html', form=applicationform)
 
@@ -298,8 +298,8 @@ def guarantorForm():
         db.session.commit()
         
         
-        flash('Form Completed', 'success')
-        return redirect(url_for('home'))
+        flash('Guarantor Information saved!', 'success')
+        return redirect(url_for('application'))
 
     return render_template('guarantorform.html', form=guarantorform)
 
@@ -333,8 +333,8 @@ def graphicalAnalytics():
         db.session.commit()
         flash('added')
         
-        flash('File Saved', 'success')
-        return redirect(url_for('home'))
+        flash('Loan Information saved!', 'success')
+        return redirect(url_for('dashboard'))
 
     return render_template('graphicalanalyticsform.html', form=graphicalanalyticsform)
 
@@ -411,7 +411,7 @@ def login():
             
             else:
                 error = 'Invalid username or password'
-                flash(error)
+
                 
     return render_template('login.html', error=error)
 

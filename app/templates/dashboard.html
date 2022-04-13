@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block main %}
-
+{% include 'flash_messages.html' %}
 <!--
 <h1 class="prop-header">Properties</h1>
 
@@ -21,20 +21,40 @@
 </div>
 -->
 
+<div class="dashboard">
+
+  <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
+  <h1>Dashboard</h1>
+  <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
+</div>
 
   <div>
     <h1 class="history">Payment History</h1>
     <canvas id="myChart"></canvas>
+  
+    <div >
+
+      <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
+      <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('payment') }}" >Add Payment</a></button>
+    </div>
+    
   </div>
+
   <div>
     <h1 class="projection">Projected Loan</h1>
     <p> This is the projected time required to pay back the loan, based on average pay, and interest rate. </p>
-    <canvas id="myChart2"></canvas>
+    <div class="graphcard">
+      <canvas id="myChart2"></canvas>
+    </div>
   </div>
+
+
   <div>
     <h1 class="interest">Interest</h1>
     <p> This is the interest accrued over the time frame. </p>
+    <div class="graphcard">
     <canvas id="myChart3"></canvas>
+    </div>
   </div>
   
 
