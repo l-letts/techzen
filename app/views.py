@@ -23,19 +23,6 @@ import uuid as uuid
 # ##
 # Routing for your application.
 # ##
-# mydb = mysql.connector.connect(
-#     host="localhost",
-#     user="root",
-#     passwd="",
-#     db="dev_techzen_db"
-# )
-
-# app.config['MYSQL_HOST'] = 'localhost'
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD']= ''
-# app.config['MYSQL_DB'] = 'dev_techzen_db'
-
-# mysql = MySQL(app)
 
 mysql = MySQL(app)
 
@@ -48,6 +35,10 @@ def home():
 @app.route('/application')
 def application():
     """Render website's home page."""
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+    
     return render_template('application.html')
 
 @app.route('/about/')
@@ -58,6 +49,11 @@ def about():
 @app.route('/payment', methods=['POST', 'GET'])
 def payment():
     """Render the website's payment."""
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+    
+    
     paymentform =PaymentForm()
     # Validate file upload on submit
     if request.method == 'POST' and paymentform.validate_on_submit():
@@ -84,7 +80,9 @@ def average(lst):
 
 @app.route('/dashboard')
 def dashboard():
-    
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
     #this works
     currentsid = '12345'
     # grabs the payment data
@@ -115,8 +113,6 @@ def dashboard():
     print(paymentlist)
     
     print(loandetails[0].interestrate / 100)
-    # user = SignUpProfile.query.filter_by(username=username).first()
-    
     # avgpay is equal to the average payment made.
     avgpay = avgpayment
     temploanamount = overallloan
@@ -127,6 +123,7 @@ def dashboard():
     interest = 0
     interestprojection = []
 
+    # This calculates the projected time period expected to pay back the loan.
     while (temploanamount-avgpay) > 0:
         i += 1
         loanpay.append(temploanamount-avgpay)
@@ -142,28 +139,18 @@ def dashboard():
             loanpay.append(0)
             days.append("Day " + str(i+1))     
             
-    chartvalue = [0, 5000,6000, 7000]
+
     
-    return render_template('dashboard.html', paymentval=foundvalue, paymentlst=json.dumps(paymentlist), values = json.dumps(chartvalue), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+    return render_template('dashboard.html', paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():
-    # if not session.get('logged_in'):
-    #     abort(401)
 
     # Instantiate your form class
     registerform=SignUpForm()
     # Validate file upload on submit
     if request.method == 'POST' and registerform.validate_on_submit():
-        # my_cursor = mysql.connection.cursor()
-        
-        # fname = request.form['fname']
-        # lname = request.form['lname']
-        # username = request.form['username']
-        # email = request.form['email']
-        # password = request.form['password']
-        # print(fname)
-        # print(email)
+ 
         
         signup = SignUpProfile( 
             first_name = registerform.fname.data,
@@ -176,12 +163,6 @@ def register():
         db.session.add(signup)
         print(signup)
         db.session.commit()
-        # my_cursor.execute('''INSERT INTO studentssignup VALUES(%s,%s,%s,%s,%s)''', (fname,lname,username,email,password))
-        # mysql.connection.commmit()
-        # my_cursor.close()        
-        # Get file data and save to your uploads folder
-        # filename=secure_filename(photo.filename)
-        # photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         flash('Registration Successful! Please Login below.', 'success')
         return redirect(url_for('login'))
@@ -190,9 +171,10 @@ def register():
 
 @app.route('/apply', methods=['POST', 'GET'])
 def loanApplication():
-    # if not session.get('logged_in'):
-    #     abort(401)
-
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+    
     # Instantiate your form class
     applicationform=LoanApplicationForm()
     # Validate file upload on submit
@@ -277,8 +259,9 @@ def loanApplication():
     
 @app.route('/guarantor', methods=['POST', 'GET'])
 def guarantorForm():
-    # if not session.get('logged_in'):
-    #     abort(401)
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
 
     # Instantiate your form class
     guarantorform= GuarantorForm()
@@ -310,10 +293,10 @@ def guarantorForm():
 
 @app.route('/graphicalanalyticsform', methods=['POST', 'GET'])
 def graphicalAnalytics():
-  
-    # day 1 principal = 5000
-    # day 2 principal = 2000
-    
+
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
 
     # Instantiate your form class
     graphicalanalyticsform= GraphicalAnalyticsForm()
@@ -343,7 +326,9 @@ def graphicalAnalytics():
 
 @app.route('/loananalyticsprioritizerform', methods=['POST', 'GET'])
 def loanAnalyticsPrioritizer():
-  
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
 
     # Instantiate your form class
     loananalyticsprioritizerform=LoanAnalyticsPrioritizerForm()

@@ -28,6 +28,8 @@
   <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
 </div>
 
+
+<!-- PLACE ALL CHARTS WITHIN THIS AREA -->
   <div>
     <h1 class="history">Payment History</h1>
     <canvas id="myChart"></canvas>
@@ -57,23 +59,19 @@
     </div>
   </div>
   
-
+<!-- PLACE ALL CHARTS ABOVE THIS AREA -->
   
   <script>
     const ctx = document.getElementById('myChart');
     const ctx2 = document.getElementById('myChart2');
     const ctx3 = document.getElementById('myChart3');
 
-    let chartval = JSON.parse({{ values | tojson }});
+
     let days = JSON.parse({{ days | tojson }});
     let paymentlst = JSON.parse({{ paymentlst | tojson }});
-    const labels = [
-      'Day1',
-      'Day2',
-      'Day3',
-    ];
+
     const myChart = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels: days,
         datasets: [{
