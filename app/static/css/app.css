@@ -47,7 +47,10 @@ body {
     text-align: -webkit-center;
     margin-top: 5%;
     padding: 50px;
-    border-style: groove
+    border-style: groove;
+    box-shadow: 5px 10px 9px #8888883d;
+    border-radius: 20px;
+    border-color: #8080800f;
 }
 
 ;
@@ -58,7 +61,16 @@ body {
     text-align: -webkit-center;
     margin-top: 5%;
     padding: 50px;
-    border-style: groove
+    border-style: groove;
+
+    
 }
 
-;
+.register-form {
+
+    border-style: groove;
+    box-shadow: 5px 10px 9px #8888883d;
+    border-radius: 20px;
+    border-color: #8080800f;
+}
+
