@@ -32,7 +32,7 @@ This should log you into the mysql server
 
 At this point, run this command:
 ```bash
-CREATE DATABASE dbtester;
+CREATE DATABASE techzendb;
 ```
 
 Once this is done, you can run "SHOW DATABASES;" in which a list should appear, and the database "dbtester" should be in the list.
@@ -40,7 +40,7 @@ Once this is done, you can run "SHOW DATABASES;" in which a list should appear, 
 
 Next, run the command:
 ```bash
-use dbtester;
+use techzendb;
 ```
 This will set the dbtester database as current working database.
 
@@ -51,7 +51,7 @@ CREATE USER 'techzen'@'localhost' IDENTIFIED BY '123'
 
 After this, grant ADMIN privileges.
 ```bash
-GRANT ALL PRIVILEGES ON dbtester.* TO 'techzen'@'localhost';
+GRANT ALL PRIVILEGES ON techzendb.* TO 'techzen'@'localhost';
 ```
 
 The database should be created and running now.
