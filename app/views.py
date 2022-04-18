@@ -84,7 +84,9 @@ def dashboard():
         flash('You are not logged in! Please log in and try again.', 'danger')
         return redirect(url_for('login'))
     #this works
+    global sid
     currentsid = '12345'
+    print("dashboard sid: ",sid)
     # grabs the payment data
     paymentlist = []
     foundvalue = Payment.query.all()
@@ -92,12 +94,19 @@ def dashboard():
 
     #iterates through the list and appends payment number
     for x in foundvalue:
-        if x.sid == currentsid:
+        if x.sid == sid:
             paymentlist.append(x.payment_amount)
+        
+        if sid not in x.sid:
+            paymentlist = [0]
         
     print(paymentlist)
     # Averages payment so we can tell how much paid monthly
-    avgpayment = average(paymentlist)
+    if paymentlist[0] == 0:
+        avgpayment = average(paymentlist)
+    else:
+        avgpayment = 0
+    
     print("avg pay =", int(avgpayment))
     
     # if avgpayment is below the minimum payback, the minimum payback value is used
@@ -155,6 +164,7 @@ def register():
         signup = SignUpProfile( 
             first_name = registerform.fname.data,
             last_name = registerform.lname.data,
+            sid = registerform.sid.data,
             username = registerform.username.data,
             email = registerform.email.data,
             password = registerform.password.data
@@ -382,7 +392,7 @@ def files():
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     error = None
-
+    
     if request.method == 'POST':
         
         if request.form['username']:
@@ -393,8 +403,15 @@ def login():
             if user is not None and check_password_hash(user.password, password):
                 session['logged_in'] = True
                 flash('Successfully logged in', 'success')
+                searchstudentid = SignUpProfile.query.all()
+                
+                global sid
+                for x in searchstudentid:
+                    if x.username == username:
+                        sid = x.sid
+
+                print("your sid is: ", sid)
                 return redirect(url_for('home'))
-            
             
             else:
                 error = 'Invalid username or password'

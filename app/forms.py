@@ -9,6 +9,7 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 class SignUpForm(FlaskForm):
     fname = StringField('First Name', validators=[InputRequired()] ,description="Please enter your first name." )
     lname = StringField('Last Name', validators =[InputRequired()],description="Please enter your last name.")
+    sid = StringField('Student ID', validators =[InputRequired()],description="Please enter your Student ID.")
     username = StringField('Username', validators=[InputRequired()],description="Please enter a username.")
     email = StringField('Email', validators=[DataRequired(), Email()], description='Please enter your email address.')
     password = PasswordField('Password', validators=[InputRequired()])
