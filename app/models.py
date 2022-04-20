@@ -99,14 +99,19 @@ class Contract(db.Model):
 
 class Loan(db.Model):
     __tablename__ = 'loan'
-    loanid = db.Column(db.String(80), primary_key = True)
-    loan_type = db.Column(db.Integer)
+    loanid = db.Column(db.Integer, primary_key = True, autoincrement = True)
     loan_status = db.Column(db.String(255))
+    sid = db.Column(db.Integer)
+    length = db.Column(db.Integer)
+    interestrate = db.Column(db.Integer)
+    loanamount = db.Column(db.Integer)
 
-    def __init__(self, loanid, loan_type, date, loan_status):
-        self.loan_type = loan_type
-        self.date = date
+    def __init__(self, loan_status, sid, length, interestrate, loanamount):
         self.loan_status = loan_status
+        self.sid = sid
+        self.length = length
+        self.interestrate = interestrate
+        self.loanamount = loanamount
 
 
 class LoanAdmin(db.Model):
@@ -184,15 +189,15 @@ class Payment(db.Model):
     loanid = db.Column(db.String(80))
     payment_amount = db.Column(db.Integer)
     payment_date = db.Column(db.String(80))
-    paymentid = db.Column(db.String(80), primary_key = True)
+    paymentid = db.Column(db.Integer, primary_key = True, autoincrement = True)
    
 
-    def __init__(self, sid, loanid, payment_amount, payment_date, paymentid):
+    def __init__(self, sid, loanid, payment_amount, payment_date):
         self.sid = sid
         self.loanid = loanid
         self.payment_amount = payment_amount
         self.payment_date = payment_date
-        self.paymentid = paymentid
+
         
 class Img(db.Model):
     __tablename__ = 'image'

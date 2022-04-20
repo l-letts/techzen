@@ -7,7 +7,7 @@ This file creates your application.
 from audioop import avg
 import os
 from app import app, db
-from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Img
+from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Loan
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory, Response
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
@@ -17,6 +17,7 @@ from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
 import uuid as uuid
+import math
 
 
 
@@ -63,7 +64,7 @@ def payment():
             loanid = paymentform.loanid.data,
             payment_amount= paymentform.paymentamount.data,
             payment_date= paymentform.paymentdate.data,
-            paymentid= paymentform.paymentid.data
+
         )
         
         db.session.add(payment)
@@ -78,6 +79,13 @@ def payment():
 def average(lst):
     return sum(lst) / len(lst)
 
+def premium(loanamout, interestrate, length):
+    loanamount = 750000
+    interestrate = 0.06
+    length = 60
+    calc=(loanamount*interestrate/12*(pow(1+interestrate/12,length)))/(pow(1+interestrate/12,length)-1)
+    return(calc)
+    
 @app.route('/dashboard')
 def dashboard():
     if not session.get('logged_in'):
@@ -90,15 +98,35 @@ def dashboard():
     # grabs the payment data
     paymentlist = []
     foundvalue = Payment.query.all()
-    loandetails = GraphicalAnalytics.query.all()
+    loanquery = Loan.query.all()
+    loandetails = [0]
+    
+    for x in loanquery:
+        print("your loan is: ", x)
+        print("Im in here: ", sid)
+        if x.sid == int(sid):
+            loandetails = x
+            overallloan = x.loanamount
+            interestrate = x.interestrate
+            length = x.length
+            print("Loan info: ", loandetails)
+        
+    if loanquery==[]:
+        print("you shouldn't be here.")
+        loandetails = []
+        overallloan = 0
+
+        
 
     #iterates through the list and appends payment number
     for x in foundvalue:
         if x.sid == sid:
             paymentlist.append(x.payment_amount)
+            print("payment now is finally: ",paymentlist)
         
-        if sid not in x.sid:
-            paymentlist = [0]
+    if paymentlist==[]:
+        print("you shouldn't be here.")
+        paymentlist = [0]
         
     print(paymentlist)
     # Averages payment so we can tell how much paid monthly
@@ -112,45 +140,67 @@ def dashboard():
     # if avgpayment is below the minimum payback, the minimum payback value is used
     # This is because, if the value is below the interest, then there will be no progress made
     # towards paying off the loan. The minimum value in this case, is the interest accrued, + 5000 for good measure.
-    overallloan= loandetails[0].loanamount
-    minimumpayback = (overallloan * 0.06) + 5000
-    print("minimum payback is: ", minimumpayback)
+    if loandetails == [0]:
+        overallloan = 0
+        loanpay = [0]
+        days = [1,2,3]
+        interestprojection = [0]
+        return render_template('dashboard.html',usrname=usrname,
+                                                paymentval=foundvalue, 
+                                                paymentlst=json.dumps(paymentlist), 
+                                                overall=json.dumps(overallloan), 
+                                                loanpay=json.dumps(loanpay), 
+                                                days=json.dumps(days), 
+                                                interest=json.dumps(interestprojection))
+        
 
-    if avgpayment < minimumpayback:
-        avgpayment = minimumpayback
+    # minimumpayback = (overallloan * 0.06) + 5000
+    # print("minimum payback is: ", minimumpayback)
+
+    # if avgpayment < minimumpayback:
+    #     avgpayment = minimumpayback
         
     print(paymentlist)
     
-    print(loandetails[0].interestrate / 100)
+
     # avgpay is equal to the average payment made.
-    avgpay = avgpayment
-    temploanamount = overallloan
+    
+    
     loanpay = []
     days = []
     i = 0
-    interestrate = loandetails[0].interestrate / 100
+    interestrate = interestrate / 100
+    avgpay = premium(overallloan, interestrate, length)
+    loanpremium = avgpay * length
+    print("You must pay back: ", loanpremium)
+    print("avg pay is: ", avgpay)
     interest = 0
     interestprojection = []
-
+    interestpayback = 0
+    temploanpremium = overallloan
     # This calculates the projected time period expected to pay back the loan.
-    while (temploanamount-avgpay) > 0:
+    # no moratorium
+    while (temploanpremium-avgpay) >= 0:
         i += 1
-        loanpay.append(temploanamount-avgpay)
+        interestpayback = temploanpremium * (interestrate/12)
+        principalamt = avgpay - interestpayback
+        loanpay.append(temploanpremium-principalamt)
+            
         days.append("Day " + str(i))
-        temploanamount = temploanamount-avgpay
-        interest = temploanamount * interestrate
-        temploanamount = temploanamount + interest
-        interestprojection.append(interest) 
+        temploanpremium = temploanpremium-principalamt
+        interestprojection.append(interestpayback) 
         
         
-    if (temploanamount-avgpay) < 0:
-            temploanamount = temploanamount - temploanamount
+    if (temploanpremium-avgpay) < 0:
+            temploanpremium = temploanpremium - temploanpremium
             loanpay.append(0)
             days.append("Day " + str(i+1))     
-            
 
-    
-    return render_template('dashboard.html', paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+        
+
+    print(days)
+    print(paymentlist)
+    return render_template('dashboard.html', usrname=usrname,paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -238,23 +288,23 @@ def loanApplication():
         
         
         
-        # api_url = 'https://face-verification2.p.rapidapi.com/FaceVerification'
-        # api_key = '198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe'
+        api_url = 'https://face-verification2.p.rapidapi.com/FaceVerification'
+        api_key = '198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe'
         
-        # root_dir = os.getcwd()
-        # image1_path =  os.path.join(root_dir, './uploads/')
-        # image1_name = filename
-        # image2_path = os.path.join(root_dir, './uploads/')
-        # image2_name = filename2
+        root_dir = os.getcwd()
+        image1_path =  os.path.join(root_dir, './uploads/')
+        image1_name = filename
+        image2_path = os.path.join(root_dir, './uploads/')
+        image2_name = filename2
 
-        # files = {'Photo1': (image1_name, open(image1_path + image1_name, 'rb'), 'multipart/form-data'), 
-        #         'Photo2': (image2_name, open(image2_path + image2_name, 'rb'), 'multipart/form-data')}
-        # header = {
-        #     "x-rapidapi-host": "face-recognition4.p.rapidapi.com",
-        #     "x-rapidapi-key": api_key
-        # }
-        # response = requests.post(api_url, files=files, headers=header)
-        # print(response.text)
+        files = {'Photo1': (image1_name, open(image1_path + image1_name, 'rb'), 'multipart/form-data'), 
+                'Photo2': (image2_name, open(image2_path + image2_name, 'rb'), 'multipart/form-data')}
+        header = {
+            "x-rapidapi-host": "face-verification2.p.rapidapi.com",
+            "x-rapidapi-key": api_key
+        }
+        response = requests.post(api_url, files=files, headers=header)
+        print(response.text)
                 
         
         db.session.add(loanapplication)
@@ -301,7 +351,7 @@ def guarantorForm():
 
 
 
-@app.route('/graphicalanalyticsform', methods=['POST', 'GET'])
+@app.route('/loanForm', methods=['POST', 'GET'])
 def graphicalAnalytics():
 
     if not session.get('logged_in'):
@@ -309,29 +359,30 @@ def graphicalAnalytics():
         return redirect(url_for('login'))
 
     # Instantiate your form class
-    graphicalanalyticsform= GraphicalAnalyticsForm()
+    loanForm= LoanForm()
 
-    if request.method == 'POST' and graphicalanalyticsform.validate_on_submit():
+    if request.method == 'POST' and loanForm.validate_on_submit():
        
-        graphicalanalytics = GraphicalAnalytics( 
-            loanid = graphicalanalyticsform.loanid.data,
-            loanamount = graphicalanalyticsform.loanamount.data,
-            interestrate = graphicalanalyticsform.interestrate.data,
-            sid = graphicalanalyticsform.sid.data
-            
+        loandata = Loan( 
+            loan_status = loanForm.loan_status.data,
+            sid = loanForm.sid.data,
+            length = loanForm.length.data,
+            interestrate = loanForm.interestrate.data,
+            loanamount = loanForm.loanamount.data,
+
         )
         
         # Error here, new rows in database, need to migrate.
                 
-        db.session.add(graphicalanalytics)
-        print(graphicalanalytics)
+        db.session.add(loandata)
+        print(loandata)
         db.session.commit()
         flash('added')
         
         flash('Loan Information saved!', 'success')
         return redirect(url_for('dashboard'))
 
-    return render_template('graphicalanalyticsform.html', form=graphicalanalyticsform)
+    return render_template('graphicalanalyticsform.html', form=loanForm)
 
 
 @app.route('/loananalyticsprioritizerform', methods=['POST', 'GET'])
@@ -406,11 +457,15 @@ def login():
                 searchstudentid = SignUpProfile.query.all()
                 
                 global sid
+                global usrname
                 for x in searchstudentid:
                     if x.username == username:
                         sid = x.sid
+                        usrname = x.first_name + " " + x.last_name
+                        
 
                 print("your sid is: ", sid)
+                print("username is: ", usrname)
                 return redirect(url_for('home'))
             
             else:

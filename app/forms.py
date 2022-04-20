@@ -39,11 +39,12 @@ class GuarantorForm(FlaskForm):
     sid = StringField('Student ID', validators=[InputRequired()])
         
     
-class GraphicalAnalyticsForm(FlaskForm):
-    loanid = StringField('Loan ID', validators=[InputRequired()])
-    loanamount = IntegerField('Loan Amount', validators=[InputRequired()])
-    interestrate = IntegerField('Interest Rate', validators=[InputRequired()])
+class LoanForm(FlaskForm):
+    loan_status = StringField('Loan Status', validators=[InputRequired()])
     sid = StringField('Student ID', validators=[InputRequired()])
+    length = StringField('Length in Months', validators=[InputRequired()])
+    interestrate = IntegerField('Interest Rate', validators=[InputRequired()])
+    loanamount = IntegerField('Loan Amount', validators=[InputRequired()])
     
     
 class LoanAnalyticsPrioritizerForm(FlaskForm):
@@ -56,4 +57,3 @@ class PaymentForm(FlaskForm):
     loanid = StringField('Loan ID', validators=[InputRequired()])
     paymentamount = StringField('Payment Amount', validators=[InputRequired()])
     paymentdate = StringField('Date', validators=[InputRequired()])
-    paymentid = StringField('Payment ID', validators=[InputRequired()])
