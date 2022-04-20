@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block main %}
+{% include 'flash_messages.html' %}
+<!--
+<h1 class="prop-header">Properties</h1>
+
+<div id="properties">
+  {% for pay in paymentval %}
+  
+    <div class="property-desc">
+      <p>{{ pay.sid }}</p>
+      <p>{{ pay.loanid }}</p>
+      <p>{{ pay.payment_amount }}</p>
+      <p>{{ pay.payment_date }}</p>
+      <p>{{ pay.paymentid }}</p>
+      
+    
+  </div>
+  {% endfor %}
+</div>
+-->
+
+<div class="dashboard">
+
+  <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
+  <h1>Dashboard</h1>
+  <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
+</div>
+
+
+<!-- PLACE ALL CHARTS WITHIN THIS AREA -->
+  <div>
+    <h1 class="history">Payment History</h1>
+    <canvas id="myChart"></canvas>
+  
+    <div >
+
+      <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
+      <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('payment') }}" >Add Payment</a></button>
+    </div>
+    
+  </div>
+
+  <div>
+    <h1 class="projection">Projected Loan</h1>
+    <p> This is the projected time required to pay back the loan, based on average pay, and interest rate. </p>
+    <div class="graphcard">
+      <canvas id="myChart2"></canvas>
+    </div>
+  </div>
+
+
+  <div>
+    <h1 class="interest">Interest</h1>
+    <p> This is the interest accrued over the time frame. </p>
+    <div class="graphcard">
+    <canvas id="myChart3"></canvas>
+    </div>
+  </div>
+  
+<!-- PLACE ALL CHARTS ABOVE THIS AREA -->
+  
+  <script>
+    const ctx = document.getElementById('myChart');
+    const ctx2 = document.getElementById('myChart2');
+    const ctx3 = document.getElementById('myChart3');
+
+
+    let days = JSON.parse({{ days | tojson }});
+    let paymentlst = JSON.parse({{ paymentlst | tojson }});
+
+    const myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Payment History',
+          data: paymentlst,
+          backgroundColor: 'rgb(0, 99, 132)',
+          borderColor: 'rgb(60, 99, 132)',
+          fill: true,
+          borderWidth: 1,
+        }]
+      },
+      options:{
+        scales:{
+          y:{
+            beginAtZero: true
+          }
+        }
+      }
+      
+    });
+
+
+    let overall = JSON.parse({{ overall | tojson }});
+    let loanpay = JSON.parse({{ loanpay | tojson }});
+    
+    const myChart2 = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Loan Projection',
+          data: loanpay,
+          fill: false,
+          backgroundColor: 'rgb(255, 99, 132)',
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: 1,
+        }]
+      },
+      options:{
+        scales:{
+          y:{
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    let interest = JSON.parse({{ interest | tojson }});
+
+    const myChart3 = new Chart(ctx3, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Interest',
+          data: interest,
+          backgroundColor: 'rgb(0, 180, 100)',
+          borderColor: 'rgb(0, 180, 100)',
+          fill: true,
+          borderWidth: 1,
+        }]
+      },
+      options:{
+        scales:{
+          y:{
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    
+  </script
+
+    
+    
+
+{% endblock %}

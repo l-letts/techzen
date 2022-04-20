@@ -2,14 +2,75 @@ body {
     padding-top: 5rem;
 }
 
-.gallery{
+.gallery {
     display: grid;
     grid-template-columns: 365px 365px 365px;
     grid-template-rows: 315px 315px;
 }
-.images{
+
+.images {
     width: 350px;
-    height:300px;
+    height: 300px;
     object-fit: cover;
+}
+
+.removeunder {
+    text-decoration: none;
+    color: white;
+}
+
+.graphcard {
+    width: 150vh;
+    margin-left: 30vh;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.logoimg {
+    width: 50px;
+    height: 50px;
+}
+
+.dashboard {
+    padding-bottom: 20px;
+}
+
+.tableft {
+    padding-top: 10px;
+    padding-left: 50px;
+}
+
+.form-login {
+    width: 50%;
+    margin: auto auto;
+    text-align: -webkit-center;
+    margin-top: 5%;
+    padding: 50px;
+    border-style: groove;
+    box-shadow: 5px 10px 9px #8888883d;
+    border-radius: 20px;
+    border-color: #8080800f;
+}
+
+;
+.form-group,
+.register-form {
+    width: 50%;
+    margin: auto auto;
+    text-align: -webkit-center;
+    margin-top: 5%;
+    padding: 50px;
+    border-style: groove;
+
     
 }
+
+.register-form {
+
+    border-style: groove;
+    box-shadow: 5px 10px 9px #8888883d;
+    border-radius: 20px;
+    border-color: #8080800f;
+}
+

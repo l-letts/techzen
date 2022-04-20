@@ -1,15 +1,18 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<form class="form-login" method="post">
+{% include 'flash_messages.html' %}
+<h3 style="color:red;margin-top: 5%;text-align: center;">TECHZEN FINANCIAL</h3>
+
+<form class="form-login" id="login-page" method="post">
   
-  <h2>Please sign in</h2>
+  <h4>Please sign in</h4>
   {% if error %}
     <div class="alert alert-danger">
       <strong>Error:</strong> {{ error }}
     </div>
   {% endif %}
-  <div class="form-group">
+  <div class="form-group" id=" center_content" >
     <label for="username" class="sr-only">Username</label>
     <input type="text" id="username" name="username" class="form-control" placeholder="Your username" required >
   </div>
@@ -19,4 +22,5 @@
   </div>
   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 </form>
+<br><br><br><br>
 {% endblock %}

@@ -2,6 +2,7 @@ from . import db
 import unicodedata
 from werkzeug.security import generate_password_hash
 
+
 class SignUpProfile(db.Model):
     # You can use this to change the table name. The default convention is to use
     # the class name. In this case a class name of UserProfile would create a
@@ -26,7 +27,7 @@ class SignUpProfile(db.Model):
 
 class LoanApplication(db.Model):
     __tablename__ = 'student'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String(80))
     last_name = db.Column(db.String(80))
     sex = db.Column(db.String(80))
@@ -101,9 +102,9 @@ class Loan(db.Model):
     loan_status = db.Column(db.String(255))
 
     def __init__(self, loanid, loan_type, date, loan_status):
-            self.loan_type = loan_type
-            self.date = date
-            self.loan_status = loan_status
+        self.loan_type = loan_type
+        self.date = date
+        self.loan_status = loan_status
 
 
 class LoanAdmin(db.Model):
@@ -125,7 +126,8 @@ class LoanAdmin(db.Model):
     
 class Guarantor(db.Model):
     __tablename__ = 'guarantor'
-    id = db.Column(db.Integer, primary_key=True)
+    #id does not auto increment.
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(db.String(80))
     last_name = db.Column(db.String(80))
     guarantor_occupation = db.Column(db.String(80))
@@ -133,7 +135,7 @@ class Guarantor(db.Model):
     guarantor_salary = db.Column(db.Float)
     guarantor_address = db.Column(db.String(255))
     loanid = db.Column(db.String(80))
-    sid = db.Column(db.String(80), primary_key = True)
+    sid = db.Column(db.String(80))
     
 
     def __init__(self, first_name, last_name, guarantor_occupation, guarantor_phonenumber, guarantor_salary,guarantor_address,loanid, sid):
@@ -155,32 +157,54 @@ class LoanPrioritization(db.Model):
    
 
     def __init__(self, loanid, priority_id, interest):
-            self.loanid = loanid
-            self.priority_id = priority_id
-            self.interest = interest
+        self.loanid = loanid
+        self.priority_id = priority_id
+        self.interest = interest
             
             
 class GraphicalAnalytics(db.Model):
     __tablename__ = 'graphicalanalytics'
     loanid = db.Column(db.String(80), primary_key = True)
+    loanamount = db.Column(db.Integer)
+    interestrate = db.Column(db.Integer)
     sid = db.Column(db.Integer)
    
 
-    def __init__(self, loanid, sid):
-            self.loanid = loanid
-            self.sid = sid
+    def __init__(self, loanid, loanamount, interestrate, sid):
+        self.loanid = loanid
+        self.loanamount = loanamount
+        self.interestrate = interestrate
+        self.sid = sid
         
 class Payment(db.Model):
     __tablename__ = 'payment'
-    sid = db.Column(db.String(80), primary_key = True)
-    loanid = db.Column(db.String(80), primary_key = True)
+    sid = db.Column(db.String(80))
+    loanid = db.Column(db.String(80))
     payment_amount = db.Column(db.Integer)
-    paymemt_date = db.Column(db.Date())
+    payment_date = db.Column(db.String(80))
+    paymentid = db.Column(db.String(80), primary_key = True)
    
 
-    def __init__(self, loanid, payment_amount, payment_date):
-            self.payment_amount = payment_amount
-            self.payment_date = payment_date
+    def __init__(self, sid, loanid, payment_amount, payment_date, paymentid):
+        self.sid = sid
+        self.loanid = loanid
+        self.payment_amount = payment_amount
+        self.payment_date = payment_date
+        self.paymentid = paymentid
+        
+class Img(db.Model):
+    __tablename__ = 'image'
+    sid = db.Column(db.String(80))
+    imageid = db.Column(db.Integer, primary_key=True)
+    img = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=False)
+    mimetype = db.Column(db.Text, nullable=True)
+    
+    def __init__(self, sid, img, name, mimetype):
+        self.sid = sid
+        self.img = img
+        self.name = name
+        self.mimetype = mimetype
 
 
 

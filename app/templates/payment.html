@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1 class="page-header">Payment</h1>
+
+{% include 'flash_messages.html' %}
+<form action="{{ url_for('payment') }}" method="post" enctype="multipart/form-data">
+
+    {{ form.csrf_token }}
+    
+    {# Add the file upload field as you learnt for Flask-WTF #}
+    <div class="form-group">
+      {{ form.sid.label }} {{ form.sid(class="form-control") }}
+      {{ form.loanid.label }} {{ form.loanid(class="form-control") }}
+      {{ form.paymentamount.label }} {{ form.paymentamount(class="form-control") }}
+      {{ form.paymentdate.label }} {{ form.paymentdate(class="form-control") }}
+      {{ form.paymentid.label }} {{ form.paymentid(class="form-control") }}  
+  </div>
+    <button type="submit" name="submit" class="btn btn-primary">Add Payment</button>
+  </form>
+    </div>
+
+{% endblock %}

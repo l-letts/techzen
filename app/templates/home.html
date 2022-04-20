@@ -1,17 +1,84 @@
 {% extends "base.html" %}
 
 {% block main %}
-<h1 class="page-header">TECHZEN</h1>
 {% include 'flash_messages.html' %}
 
-<p class="lead">The state of the SLBs website is not user-friendly and it possesses many flaws that 
-    could be refined and be made more user-friendly and appealing to current users and potential users. 
-    However, our goal is not only to redesign but to input additional features that will ensure the site is 
-    not only scalable but will help in ensuring students have assistance in paying back their loans. 
-    The overall look and feel of the site will be enhanced to allow better usability and a focus on effective 
-    loan management and repayment strategies. Our system will also be scalable in terms of it primarily being a 
-    loan system for students but also, persons can use this system to see how their loan would look and the 
-    projected amount they would have to pay once they entered their various information as loans are calculated 
-    at different interest rates depending on the type of loan the user is taking or is interested in. 
-</p>
+<div class="container col-xxl-8 px-4 py-5">
+    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+      <div class="col-10 col-sm-8 col-lg-6">
+        <img src="uploads\kids.jpeg" class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="1000" height="700" loading="lazy">
+      </div>
+      <div class="col-lg-6">
+        <h1 class="display-5 fw-bold lh-1 mb-3">TECHZEN FINANCIAL</h1>
+        <p class="lead">The state of the SLBs website is not user-friendly and it possesses many flaws. The overall look and feel of the site will be enhanced to allow better usability. Our system will also be scalable in terms of it primarily being a loan system for students but also, persons can use this system.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+          <button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Send us your queries</button>
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+      <div class="col d-flex align-items-start">
+        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+          
+        </div>
+        <div>
+          <h4>Account Management</h4>
+          <p>The system shall allow the user to view their account, perform actions on their respective accounts and also allow for user authentication.
+        </p>
+        </div>
+      </div>
+      <div class="col d-flex align-items-start">
+        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+         
+        </div>
+        <div>
+          <h4>Quick and easy Loan Application</h4>
+          <p>The system shall allow the user to access the loan application system, and allow them to submit requested documents onto their dashboard, as well as verify their identity via camera and ID, so that the loaning agency may utilize them.   </p>
+          
+        </div>
+      </div>
+      <div class="col d-flex align-items-start">
+        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+          
+        </div>
+        <div>
+          <h3>Graphical Analytics</h3>
+          <p>The system shall generate specified types of graphs based on their inputs for their loans which can be used to help keep track of their loan effectively.</p>
+        </div>
+      </div>
+    </div>
+  
+
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+      <div class="col d-flex align-items-start">
+        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+         
+        </div>
+        <div>
+          <h4>Credit Score Analytics  </h4>
+          <p>The system shall Calculate the user's credit score after the user has made the first 3 payments which will be recorded by the system.  </p>
+          
+        </div>
+      </div>
+      <div class="col d-flex align-items-start">
+        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
+          
+        </div>
+        <div>
+          <h4>Loan Analytics Prioritizer</h4>
+          <p>The system shall be able to advise a user of which loan they should focus on paying first based on the priority of the loan  </p>
+        </div>
+      </div>
+    </div>
+  
+
+
 {% endblock %}
