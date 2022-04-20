@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from werkzeug.utils import secure_filename
 from wtforms.widgets import TextArea
-from wtforms import StringField, PasswordField, TextAreaField,SelectField, IntegerField, DateField
+from wtforms import StringField, PasswordField, TextAreaField,SelectField, IntegerField, DateField, BooleanField
 from wtforms.validators import InputRequired, DataRequired, Email
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 
@@ -40,11 +40,14 @@ class GuarantorForm(FlaskForm):
         
     
 class LoanForm(FlaskForm):
+    loan_type = StringField('Loan Type', validators=[InputRequired()])
     loan_status = StringField('Loan Status', validators=[InputRequired()])
     sid = StringField('Student ID', validators=[InputRequired()])
     length = StringField('Length in Months', validators=[InputRequired()])
     interestrate = IntegerField('Interest Rate', validators=[InputRequired()])
     loanamount = IntegerField('Loan Amount', validators=[InputRequired()])
+    start_date = StringField('Start Date (Month)', validators=[DataRequired()])
+    moratorium = StringField('Moratorium', validators=[DataRequired()])
     
     
 class LoanAnalyticsPrioritizerForm(FlaskForm):

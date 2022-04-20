@@ -93,6 +93,7 @@ def dashboard():
         return redirect(url_for('login'))
     #this works
     global sid
+    monthdictionary = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     currentsid = '12345'
     print("dashboard sid: ",sid)
     # grabs the payment data
@@ -100,6 +101,7 @@ def dashboard():
     foundvalue = Payment.query.all()
     loanquery = Loan.query.all()
     loandetails = [0]
+    
     
     for x in loanquery:
         print("your loan is: ", x)
@@ -109,12 +111,19 @@ def dashboard():
             overallloan = x.loanamount
             interestrate = x.interestrate
             length = x.length
+            start_date = x.start_date
             print("Loan info: ", loandetails)
-        
+            i = 0
+            for c in monthdictionary:
+                if start_date == c:
+                    start_number = i
+                i+=1
+    print("your start number: ", start_number)
     if loanquery==[]:
         print("you shouldn't be here.")
         loandetails = []
         overallloan = 0
+        interestrate = 1
 
         
 
@@ -127,6 +136,7 @@ def dashboard():
     if paymentlist==[]:
         print("you shouldn't be here.")
         paymentlist = [0]
+        interestrate = 1
         
     print(paymentlist)
     # Averages payment so we can tell how much paid monthly
@@ -168,7 +178,7 @@ def dashboard():
     
     loanpay = []
     days = []
-    i = 0
+    i = start_number
     interestrate = interestrate / 100
     avgpay = premium(overallloan, interestrate, length)
     loanpremium = avgpay * length
@@ -178,6 +188,9 @@ def dashboard():
     interestprojection = []
     interestpayback = 0
     temploanpremium = overallloan
+    
+    days.append(str(monthdictionary[(i % 12)]))
+    loanpay.append(temploanpremium)
     # This calculates the projected time period expected to pay back the loan.
     # no moratorium
     while (temploanpremium-avgpay) >= 0:
@@ -186,7 +199,7 @@ def dashboard():
         principalamt = avgpay - interestpayback
         loanpay.append(temploanpremium-principalamt)
             
-        days.append("Day " + str(i))
+        days.append(str(monthdictionary[(i % 12)]))
         temploanpremium = temploanpremium-principalamt
         interestprojection.append(interestpayback) 
         
@@ -194,13 +207,20 @@ def dashboard():
     if (temploanpremium-avgpay) < 0:
             temploanpremium = temploanpremium - temploanpremium
             loanpay.append(0)
-            days.append("Day " + str(i+1))     
+            days.append(str(monthdictionary[((i+1) % 12)]))     
 
         
 
     print(days)
     print(paymentlist)
-    return render_template('dashboard.html', usrname=usrname,paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+    
+    paydays = []
+    i = start_number
+    for x in paymentlist:
+        paydays.append(str(monthdictionary[((i+1) % 12)])) 
+        i+=1
+    upperpay = max(paymentlist)
+    return render_template('dashboard.html', maxpay=upperpay, paydays = json.dumps(paydays) , usrname=usrname,paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -364,12 +384,14 @@ def graphicalAnalytics():
     if request.method == 'POST' and loanForm.validate_on_submit():
        
         loandata = Loan( 
+            loan_type = loanForm.loan_type.data,
             loan_status = loanForm.loan_status.data,
             sid = loanForm.sid.data,
             length = loanForm.length.data,
             interestrate = loanForm.interestrate.data,
             loanamount = loanForm.loanamount.data,
-
+            start_date = loanForm.start_date.data,
+            moratorium = loanForm.moratorium.data
         )
         
         # Error here, new rows in database, need to migrate.

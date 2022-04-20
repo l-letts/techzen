@@ -100,18 +100,24 @@ class Contract(db.Model):
 class Loan(db.Model):
     __tablename__ = 'loan'
     loanid = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    loan_type = db.Column(db.String(255))
     loan_status = db.Column(db.String(255))
     sid = db.Column(db.Integer)
     length = db.Column(db.Integer)
     interestrate = db.Column(db.Integer)
     loanamount = db.Column(db.Integer)
+    start_date = db.Column(db.String(80))
+    moratorium = db.Column(db.String(255))
 
-    def __init__(self, loan_status, sid, length, interestrate, loanamount):
+    def __init__(self, loan_type, loan_status, sid, length, interestrate, loanamount, start_date, moratorium):
+        self.loan_type = loan_type
         self.loan_status = loan_status
         self.sid = sid
         self.length = length
         self.interestrate = interestrate
         self.loanamount = loanamount
+        self.start_date = start_date
+        self.moratorium = moratorium
 
 
 class LoanAdmin(db.Model):

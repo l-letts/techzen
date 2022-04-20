@@ -44,7 +44,7 @@
   </div>
 
   <div>
-    <h1 class="projection">Projected Loan</h1>
+    <h1 class="projection">Projected Loan with No Moratorium</h1>
     <p> This is the projected time required to pay back the loan, based on average pay, and interest rate. </p>
     <div class="graphcard">
       <canvas id="myChart2"></canvas>
@@ -70,11 +70,13 @@
 
     let days = JSON.parse({{ days | tojson }});
     let paymentlst = JSON.parse({{ paymentlst | tojson }});
+    let paydays = JSON.parse({{ paydays | tojson }});
+    let maxpay = {{ maxpay }}
 
     const myChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: days,
+        labels: paydays,
         datasets: [{
           label: 'Payment History',
           data: paymentlst,
@@ -87,7 +89,9 @@
       options:{
         scales:{
           y:{
-            beginAtZero: true
+            beginAtZero: true,
+            max: maxpay +10000
+
           }
         }
       }
