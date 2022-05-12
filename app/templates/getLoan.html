@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+
+<h1> Loan List </h1>
+
+
+{% include 'flash_messages.html' %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+    </style>
+<div>
+    <table>
+        <form action="{{ url_for('getLoan') }}" method="post" enctype="multipart/form-data">
+
+        <tr>
+            <th>Loan ID</th>
+            <th>SID</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Action</th>
+
+        </tr>
+    {% for loan in loans %}
+            
+
+        <tr>
+            <td> {{ loan.loanid }} </td>
+            <td> {{ loan.sid }} </td>
+            <td> {{ loan.loanamount }} </td>
+            <td> {{ loan.start_date }} </td>
+
+
+            {% set view = (loan.loanid|string) + "_" "View" %}
+
+
+            <td> <button  type="submit" name="submit" class="btn btn-primary" value={{view}}>View Graph</button></td>
+        
+
+        </tr>
+        
+
+
+
+    
+    {% endfor %}
+    </form>
+    </table>
+</div>
+
+    
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block main %}
+{% include 'flash_messages.html' %}
+
+<h1> Priority List </h1>
+<p> The recommendation is to focus on:</p>
+<p> <strong> Loan ID: {{ loaninfo[0] }} </strong> </p>
+<p>The Overall Loan Amount: {{ loaninfo[1] }} </p>
+<p>The Interest Rate: {{ loaninfo[2] }}% </p>
+<p>The time to pay back: {{ loaninfo[3] }} months </p>
+<p>The total interest would be: {{ loaninfo[4] }} </p>
+{% endblock %}

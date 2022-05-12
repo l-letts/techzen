@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+
+<h1> ADMIN LOG </h1>
+
+
+{% include 'flash_messages.html' %}
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+    </style>
+<div>
+    <table>
+
+        <tr>
+            <th>Log ID</th>
+            <th>Time</th>
+            <th>Info</th>
+
+        </tr>
+    {% for log in adminlog %}
+            
+
+        <tr>
+            <td> {{ log.logid }} </td>
+            <td> {{ log.time }} {{ log.last_name}} </td>
+            <td> {{ log.logdata }} </td>
+
+        </tr>
+        
+
+
+
+    
+    {% endfor %}
+
+    </table>
+</div>
+
+    
+
+{% endblock %}

@@ -6,8 +6,9 @@ This file creates your application.
 """
 from audioop import avg
 import os
+from tabnanny import check
 from app import app, db
-from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Loan
+from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Loan, AdminLog
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory, Response
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
@@ -18,6 +19,8 @@ import requests
 import json
 import uuid as uuid
 import math
+from datetime import datetime
+from sqlalchemy import desc, asc
 
 
 
@@ -85,29 +88,78 @@ def premium(loanamout, interestrate, length):
     length = 60
     calc=(loanamount*interestrate/12*(pow(1+interestrate/12,length)))/(pow(1+interestrate/12,length)-1)
     return(calc)
+
+def getpaymenthistory(loanid):
     
-@app.route('/dashboard')
+    paymentlist = []
+    foundvalue = Payment.query.filter(Payment.loanid==loanid).all()
+    print("foundvalue: ", foundvalue)
+    for x in foundvalue:
+        if x.sid == session['sid']:
+            paymentlist.append(x.payment_amount)
+            print("payment now is finally: ",paymentlist)
+        
+    if paymentlist==[]:
+        print("you shouldn't be here.")
+        paymentlist = [0]
+        interestrate = 1
+    
+    return (paymentlist)
+# 
+
+@app.route('/getloan/', methods=['POST', 'GET'])
+def getLoan():
+    """Render the website's loan page."""
+    
+    loanquery = Loan.query.filter(Loan.sid == session['sid']).all()
+    
+    if request.method == 'POST' :
+        flash("we got here", "success")
+        
+        raw = request.form['submit']
+        loanid, status = raw.split("_")
+        
+        if status == 'View':
+            flash("we viewing, bois", 'success')
+            flash(f"Loanid extracted was: {loanid}", 'success')
+
+    
+    return render_template('getLoan.html', loans=loanquery)
+
+@app.route('/dashboard', methods=['POST', 'GET'])
 def dashboard():
     if not session.get('logged_in'):
         flash('You are not logged in! Please log in and try again.', 'danger')
         return redirect(url_for('login'))
     #this works
-    global sid
+ 
     monthdictionary = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     currentsid = '12345'
-    print("dashboard sid: ",sid)
+    print("dashboard sid: ",session['sid'])
+    loanid = 1
+    start_number = 0
+    paymentlist = [0]
+    # experiment
+    loanlst = Loan.query.filter(Loan.sid == session['sid']).all()
+
+    if request.method == 'POST':
+        loanid = request.form['submit']
+        print(loanid)
+        paymentlist = getpaymenthistory(loanid)
     # grabs the payment data
-    paymentlist = []
+    
     foundvalue = Payment.query.all()
     loanquery = Loan.query.all()
     loandetails = [0]
+    print("loanquery: ", loanquery)
     
     
     for x in loanquery:
         print("your loan is: ", x)
-        print("Im in here: ", sid)
-        if x.sid == int(sid):
+        print("Im in here: ", session['sid'])
+        if x.loanid == int(loanid):
             loandetails = x
+            loanid = x.loanid
             overallloan = x.loanamount
             interestrate = x.interestrate
             length = x.length
@@ -125,28 +177,22 @@ def dashboard():
         overallloan = 0
         interestrate = 1
 
-        
+    print("check your loanid: ", loanid)
 
     #iterates through the list and appends payment number
-    for x in foundvalue:
-        if x.sid == sid:
-            paymentlist.append(x.payment_amount)
-            print("payment now is finally: ",paymentlist)
+    # for x in foundvalue:
+    #     if x.sid == session['sid']:
+    #         paymentlist.append(x.payment_amount)
+    #         print("payment now is finally: ",paymentlist)
         
-    if paymentlist==[]:
-        print("you shouldn't be here.")
-        paymentlist = [0]
-        interestrate = 1
+    # if paymentlist==[]:
+    #     print("you shouldn't be here.")
+    #     paymentlist = [0]
+    #     interestrate = 1
         
-    print(paymentlist)
+    # print(paymentlist)
     # Averages payment so we can tell how much paid monthly
-    if paymentlist[0] == 0:
-        avgpayment = average(paymentlist)
-    else:
-        avgpayment = 0
-    
-    print("avg pay =", int(avgpayment))
-    
+
     # if avgpayment is below the minimum payback, the minimum payback value is used
     # This is because, if the value is below the interest, then there will be no progress made
     # towards paying off the loan. The minimum value in this case, is the interest accrued, + 5000 for good measure.
@@ -155,7 +201,7 @@ def dashboard():
         loanpay = [0]
         days = [1,2,3]
         interestprojection = [0]
-        return render_template('dashboard.html',usrname=usrname,
+        return render_template('dashboard.html',usrname=session['username'],
                                                 paymentval=foundvalue, 
                                                 paymentlst=json.dumps(paymentlist), 
                                                 overall=json.dumps(overallloan), 
@@ -170,7 +216,7 @@ def dashboard():
     # if avgpayment < minimumpayback:
     #     avgpayment = minimumpayback
         
-    print(paymentlist)
+    # print(paymentlist)
     
 
     # avgpay is equal to the average payment made.
@@ -214,14 +260,191 @@ def dashboard():
     print(days)
     print(paymentlist)
     
+    
+    # 
+    
+    # abc = Payment.query.filter(Payment.loanid==loanid).first()
+    # abc = paymentlist.payment_date
+    
+    # print("paylist = ", abc)
     paydays = []
     i = start_number
     for x in paymentlist:
         paydays.append(str(monthdictionary[((i+1) % 12)])) 
         i+=1
     upperpay = max(paymentlist)
-    return render_template('dashboard.html', maxpay=upperpay, paydays = json.dumps(paydays) , usrname=usrname,paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
+    
+    return render_template('dashboard.html', loanlist = loanlst, maxpay=upperpay, paydays = json.dumps(paydays) , usrname=session['username'],paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+    
+
+    
+@app.route('/priority', methods=['POST', 'GET'])
+def priority():
+    
+    # Instantiate your form class
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+    #this works
+ 
+    # monthdictionary = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    # currentsid = '12345'
+    print("dashboard sid: ",session['sid'])
+    flash(session['sid'], "success")
+    loanid = 3
+    start_number = 0
+    paymentlist = [0]
+    # experiment
+    
+    loanlst = Loan.query.filter(Loan.sid == session['sid']).all()
+    loanquery = Loan.query.all()
+    loandetails = [0]
+    print("loanquery: ", loanquery)
+    
+    loantotallst = []
+    for x in loanquery:
+        print("your loan is: ", x)
+        print("Im in here: ", session['sid'])
+        flash(x, "success")
+        if x.sid == int(session['sid']):
+
+            loandetails = []
+            loanid = x.loanid
+            overallloan = x.loanamount
+            interestrate = x.interestrate
+            length = x.length
+            
+            loandetails.append(loanid)
+            loandetails.append(overallloan)
+            loandetails.append(interestrate)
+            loandetails.append(length)
+            print("Loan info: ", loandetails)
+            loantotallst.append(loandetails)
+            print("Loandetails info: ", loantotallst)
+            flash(f"Loandetails info: {loantotallst}", "danger")
+
+    if loanquery==[]:
+        print("you shouldn't be here.")
+        loandetails = []
+        overallloan = 0
+        interestrate = 1
+
+    print("check your loanid: ", loanid)
+
+
+    # if loandetails == [0]:
+    #     overallloan = 0
+    #     loanpay = [0]
+
+    #     interestprojection = [0]
+    #     return render_template('dashboard.html',usrname=session['username'],
+    #                                             paymentlst=json.dumps(paymentlist), 
+    #                                             overall=json.dumps(overallloan), 
+    #                                             loanpay=json.dumps(loanpay), 
+    #                                             interest=json.dumps(interestprojection))
+        
+# assigning til i see if correct
+    interestrate = 6
+    overallloan = 100
+    length = 60
+    
+    # check if this stores properly
+    interestlst = []
+    
+    
+    flash(f"this is for you kobe {loantotallst[0]}", "success")
+    o = 0
+    
+    for x in loantotallst:
+        loaninterests = []
+        overallloan = loantotallst[o][1]
+        interestrate = loantotallst[o][2]
+        length = loantotallst[o][3]
+        
+        # 
+        loanpay = []
+        i = start_number
+        interestrate = interestrate / 100
+        avgpay = premium(overallloan, interestrate, length)
+        loanpremium = avgpay * length
+        print("You must pay back: ", loanpremium)
+        print("avg pay is: ", avgpay)
+        interest = 0
+        interestprojection = []
+        interestpayback = 0
+        temploanpremium = overallloan
+        
+        loanpay.append(temploanpremium)
+        # This calculates the projected time period expected to pay back the loan.
+
+        
+        
+        
+        
+        # no moratorium
+        while (temploanpremium-avgpay) >= 0:
+            i += 1
+            interestpayback = temploanpremium * (interestrate/12)
+            principalamt = avgpay - interestpayback
+            loanpay.append(temploanpremium-principalamt)
+                
+            # days.append(str(monthdictionary[(i % 12)]))
+            temploanpremium = temploanpremium-principalamt
+            interestprojection.append(interestpayback) 
+            
+            
+        if (temploanpremium-avgpay) < 0:
+                temploanpremium = temploanpremium - temploanpremium
+                loanpay.append(0)
+        
+        loaninterests.append(loantotallst[o][0])
+        loaninterests.append(sum(interestprojection))
+        interestlst.append(loaninterests)
+        flash(f"we got the lst: {interestlst}", "success")
+        flash(f"we tried summing {loaninterests}", "success")
+
+        print(paymentlist)
+        
+        flash(overallloan, "success")
+        flash(interestprojection, "success")
+        flash(session['sid'], "success")
+        flash(f"Iteration = {o}", "danger")
+        o+=1
+    flash(f"Simply Put, the two values we working with are: Loanid: {interestlst[0][0]}, Interest: {interestlst[0][1]} ", "danger")
+    flash(f"Loanid: {interestlst[1][0]}, Interest: {interestlst[1][1]} ", "danger")
+    
+    prioritylst = []
+    for x in interestlst:
+        prioritylst.append(x[1])
+    flash(prioritylst, "success")
+    higherpriority = max(prioritylst)
+    flash(higherpriority, "success")
+    higherprioritylst = []
+    for x in interestlst:
+        if higherpriority in x:
+            higherprioritylst.append(x[0])
+            higherprioritylst.append(x[1])
+            flash(f"There was, yes: {higherprioritylst}", "danger")
+    flash(f"Therefore, the highest priority to pay back is: {higherpriority}. The loan is: {higherprioritylst[0]}, and the Interest pay back is {higherprioritylst[1]} ", "success")
+    loaninfo = []
+    
+    for x in loantotallst:
+        flash(f"Checking this value: {x}", "danger")
+        if higherprioritylst[0] in x:
+            flash("apparently there is", "danger")
+            overallloan = x[1]
+            interestrate = x[2]
+            length = x[3]
+            loaninfo.append(higherprioritylst[0]) #loanid
+            loaninfo.append(overallloan)
+            loaninfo.append(interestrate)
+            loaninfo.append(length)
+            loaninfo.append(higherprioritylst[1]) #loaninterest
+    
+    return render_template('priority.html', loaninfo = loaninfo,prioritylst = higherprioritylst, loanlist = loanlst , usrname=session['username'], paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), interest=json.dumps(interestprojection))
+    
+
 @app.route('/register', methods=['POST', 'GET'])
 def register():
 
@@ -285,27 +508,13 @@ def loanApplication():
             trn = applicationform.trn.data,
             address = applicationform.address.data,
             email = applicationform.email.data,
-            photo= filename
+            photo= filename,
+            status= "Waiting"
 
         )
         
         
         # API Call
-
-
-        # url = "https://face-verification2.p.rapidapi.com/FaceVerification"
-
-        # payload = f"-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"{os.path.join(root_dir, './uploads/') + filename}\"\r\n\r\n\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"{os.path.join(root_dir, './uploads/') + filename}\"\r\n\r\n\r\n-----011000010111000001101001--\r\n\r\n"
-        # headers = {
-        #     "content-type": "multipart/form-data; boundary=---011000010111000001101001",
-        #     "X-RapidAPI-Host": "face-verification2.p.rapidapi.com",
-        #     "X-RapidAPI-Key": "198bff86e4msh4cfe80801440c7ep1c1779jsn9a870a2e8dbe"
-        # }
-
-        # response = requests.request("POST", url, data=payload, headers=headers)
-
-        # print(response.text)
-        
         
         
         api_url = 'https://face-verification2.p.rapidapi.com/FaceVerification'
@@ -326,11 +535,18 @@ def loanApplication():
         response = requests.post(api_url, files=files, headers=header)
         print(response.text)
                 
+        if "The two faces belong to the same person." in response.text:        
+            db.session.add(loanapplication)
+            db.session.commit()
+            flash('Student Information saved!', 'success')
+            return redirect(url_for('application'))
         
-        db.session.add(loanapplication)
-        db.session.commit()
-        flash('Student Information saved!', 'success')
-        return redirect(url_for('application'))
+        else:
+            flash("The faces do not match!", 'danger')
+            return redirect(url_for('loanApplication'))
+        
+        
+        
 
     return render_template('loanapplication.html', form=applicationform)
 
@@ -437,8 +653,106 @@ def loanAnalyticsPrioritizer():
     return render_template('loananalyticsprioritizerform.html', form=loananalyticsprioritizerform)
 
 
+@app.route('/admin_dashboard', methods = ['POST', 'GET'])
+def adminDashboard():
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+    
+    if not session.get('is_admin'):
+        flash('You are not an Admin! Please login to your account.', 'danger')
+        return redirect(url_for('login'))
+    
+    date = datetime.now()
+    print(date)
 
+    
+    loanapplicants = LoanApplication.query.all()
+    declined = "You declined an applicant: "
+    accepted = "You accepted an applicant: "
+    undo = "You undid an applicant's status: "
+    if request.method == 'POST':
+        
+        if (request.form['submit'] == 'Accepted') or (request.form['submit'] == 'Declined'):
+            condition = request.form['submit']
+            print(f"review condition: {condition}")
+            return render_template('review.html', loanapplicants = loanapplicants, condition = condition)  
+        
+        else:
+            raw = request.form['submit']
+            
+            loanid, status = raw.split("_")
 
+            loanapp = LoanApplication.query.filter(LoanApplication.id==loanid).first()
+            print(loanapp)
+            applicantname= loanapp.first_name + " " + loanapp.last_name
+            
+            if status == 'Accept':
+                record = LoanApplication.query.filter(LoanApplication.id == loanid).first()
+                record.status = "Accepted"
+                print("i accepted")
+                flash(f'Notice! {accepted} {applicantname} ID: {loanid}', 'success')
+
+                adminlogdata = AdminLog(
+                    logdata = f"Notice! {accepted} {applicantname} ID: {loanid}",
+                    time = datetime.now()
+                )
+                
+                db.session.add(adminlogdata)
+                
+                db.session.commit()
+
+                return redirect(url_for('adminDashboard'))  
+            if status == 'Decline':
+                flash(f'Notice! {declined} {applicantname} ID: {loanid}', 'danger') 
+                # LoanApplication.query.filter(LoanApplication.id == loanid).delete()
+                record = LoanApplication.query.filter(LoanApplication.id == loanid).first()
+                record.status = "Declined"
+                print("i think i declined")
+                
+                adminlogdata = AdminLog(
+                    logdata = f"Notice! {declined} {applicantname} ID: {loanid}",
+                    time = datetime.now()
+                )
+                
+                db.session.add(adminlogdata)
+                
+                db.session.commit()
+                return redirect(url_for('adminDashboard'))
+            
+            if status == 'Undo':
+                flash(f'Notice! {undo} {applicantname} ID: {loanid}', 'danger') 
+                # LoanApplication.query.filter(LoanApplication.id == loanid).delete()
+                record = LoanApplication.query.filter(LoanApplication.id == loanid).first()
+                record.status = "Waiting"
+                print("i think i undid")
+                
+                adminlogdata = AdminLog(
+                    logdata = f"Notice! {undo} {applicantname} ID: {loanid}",
+                    time = datetime.now()
+                )
+                db.session.add(adminlogdata)
+                
+                db.session.commit()
+                return redirect(url_for('adminDashboard'))
+            
+        # if request.form['review']:
+                 
+    
+    return render_template('adminDashboard.html', loanapplicants =loanapplicants)
+
+@app.route('/log')
+def adminLog():
+
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+
+    log = AdminLog.query.order_by(desc(AdminLog.time)).all()
+
+    
+
+    return render_template('adminlog.html', adminlog=log)
 
 def get_uploaded_file():
     rootdir = os.getcwd()
@@ -468,6 +782,13 @@ def login():
     
     if request.method == 'POST':
         
+        if request.form['username'] == 'admin':
+            if request.form['password'] == 'admin':
+                session['is_admin'] = True
+                session['logged_in'] = True
+                flash('welcome Admin', 'success')
+                return redirect(url_for('adminDashboard'))
+                
         if request.form['username']:
             username = request.form['username']
             password = request.form['password']
@@ -475,6 +796,7 @@ def login():
             user = SignUpProfile.query.filter_by(username=username).first()
             if user is not None and check_password_hash(user.password, password):
                 session['logged_in'] = True
+                session['is_student'] = True
                 flash('Successfully logged in', 'success')
                 searchstudentid = SignUpProfile.query.all()
                 
@@ -488,6 +810,9 @@ def login():
 
                 print("your sid is: ", sid)
                 print("username is: ", usrname)
+                session['username'] = usrname
+                session['sid'] = sid
+                print("welp session id: ", session['sid'])
                 return redirect(url_for('home'))
             
             else:
@@ -500,6 +825,8 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
+    session.pop('is_admin', None)
+    session.pop('is_student', None)
     flash('You were logged out', 'success')
     return redirect(url_for('home'))
 

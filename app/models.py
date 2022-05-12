@@ -1,4 +1,5 @@
 from . import db
+import datetime
 import unicodedata
 from werkzeug.security import generate_password_hash
 
@@ -39,9 +40,10 @@ class LoanApplication(db.Model):
     address = db.Column(db.String(255))
     email = db.Column(db.String(255))
     photo = db.Column(db.String(255))
+    status = db.Column(db.String(255))
     
 
-    def __init__(self, first_name, last_name, sex, phonenumber, sid, trn, address,email, photo):
+    def __init__(self, first_name, last_name, sex, phonenumber, sid, trn, address,email, photo, status):
         self.first_name = first_name
         self.last_name = last_name
         self.sex = sex
@@ -51,6 +53,7 @@ class LoanApplication(db.Model):
         self.address = address
         self.email = email
         self.photo = photo
+        self.status = status
 
 class University(db.Model):
     __tablename__ = 'university'
@@ -78,6 +81,17 @@ class CreditScore(db.Model):
     def __init__(self, sid, cscore):
         self.sid = sid
         self.cscore = cscore
+        
+class AdminLog(db.Model):
+    __tablename__ = 'adminlog'
+    logid = db.Column(db.Integer, primary_key = True, autoincrement = True)
+    logdata = db.Column(db.Text)
+    time = db.Column(db.DateTime)
+
+    def __init__(self, logdata, time):
+
+        self.logdata = logdata
+        self.time = time
      
 class Contract(db.Model):
     __tablename__ = 'contract'

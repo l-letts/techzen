@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+
+<h1> REVIEW APPLICANTS </h1>
+<div>
+    <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
+    <form action="{{ url_for('adminDashboard') }}" method="post" enctype="multipart/form-data">
+    <button type="submit" name="submit" class="btn btn-primary" value = "Accepted"> Accepted</button> <button type="submit" name="submit" class="btn btn-primary" value = "Declined"> Decline </button> <button type="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('adminDashboard') }}" >Return</a></button>  
+</form>
+</div>
+
+{% include 'flash_messages.html' %}
+
+<p><br> Displaying applicants who were {{condition}}.</p>
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+    </style>
+<div>
+    <table>
+        <form action="{{ url_for('adminDashboard') }}" method="post" enctype="multipart/form-data">
+        <tr>
+            <th>Applicant ID</th>
+            <th>Name</th>
+            <th>TRN</th>
+            <th>Student ID</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    {% for loan in loanapplicants %}
+            
+        {% if loan.status == condition %}
+        <tr>
+            <td> {{ loan.id }} </td>
+            <td> {{ loan.first_name }} {{ loan.last_name}} </td>
+            <td> {{ loan.trn }} </td>
+            <td> {{ loan.sid }} </td>
+            <td> {{ loan.status }} </td>
+
+            {% set accepted = (loan.id|string) + "_" "Accept" %}
+            {% set declined = (loan.id|string) + "_" "Decline" %}
+            {% set undo = (loan.id|string) + "_" "Undo" %}
+
+
+            <script>
+            function AcceptFunct() {
+            confirm("Are you sure you want to accept applicant?");
+            }
+            </script>
+
+            <td> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{accepted}}>Accept</button> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-secondary" value={{declined}}>Decline</button> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{undo}}>Undo</button></td>
+        </tr>
+        
+        {%endif%}
+
+
+    
+    {% endfor %}
+    </form>
+    </table>
+</div>
+<scripts>
+</scripts>
+    
+
+{% endblock %}

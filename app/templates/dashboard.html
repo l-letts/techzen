@@ -29,7 +29,15 @@
   <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
 </div>
 
+<form action="{{ url_for('dashboard') }}" method="post" enctype="multipart/form-data">
+  <p> Choose a record from the list below </p>
+{% for loan in loanlist %}
 
+    
+        <button  type="submit" name="submit" class="btn btn-primary" value={{loan.loanid}}> Loan {{loan.loanid}}</button>
+
+{%endfor%}
+</form>
 <!-- PLACE ALL CHARTS WITHIN THIS AREA -->
   <div>
     <h1 class="history">Payment History</h1>
