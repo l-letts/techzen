@@ -158,11 +158,12 @@ def dashboard():
     loandetails = [0]
     print("loanquery: ", loanquery)
     
-    
+    loanid = int(loanid)
     for x in loanquery:
         print("your loan is: ", x)
         print("Im in here: ", session['sid'])
-        if x.loanid == int(loanid):
+
+        if x.loanid == loanid:
             loandetails = x
             loanid = x.loanid
             overallloan = x.loanamount
