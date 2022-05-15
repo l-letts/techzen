@@ -26,17 +26,32 @@
   <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
   <h1>Dashboard</h1>
   <h3>Welcome, {{ usrname }}!</h3>
-  <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
-</div>
+  </div>
 
 <form action="{{ url_for('dashboard') }}" method="post" enctype="multipart/form-data">
-  <p> Choose a record from the list below </p>
+  <p> Your SID is <strong>{{sid}}</strong></p>
+  <p> Choose a record from the list below: </p>
+  <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
 {% for loan in loanlist %}
 
     
         <button  type="submit" name="submit" class="btn btn-primary" value={{loan.loanid}}> Loan {{loan.loanid}}</button>
 
 {%endfor%}
+
+
+{%if loanstat == "No"%}
+<p> If you do not see any records, please apply for a loan or add one, and try again. </p>
+{%endif%}
+{%if loanstat == "Yes"%}
+
+
+<button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('schedule') }}" >Go to Schedule</a> </button> 
+
+
+
+<h4> Showing information on Loan {{loanid}}</h4>
+<p> Your Loan Principal is: {{"${:,.2f}".format(loanamount)}}</p>
 </form>
 <!-- PLACE ALL CHARTS WITHIN THIS AREA -->
   <div>
@@ -160,6 +175,6 @@
   </script
 
     
-    
+  {%endif%}
 
 {% endblock %}

@@ -37,6 +37,14 @@ class GuarantorForm(FlaskForm):
     gaddress = StringField('Address', validators=[InputRequired()])
     loanid = StringField('Loan ID', validators=[InputRequired()])
     sid = StringField('Student ID', validators=[InputRequired()])
+    
+class UniversityForm(FlaskForm):
+    sid = StringField('Student ID', validators=[InputRequired()])
+    university_name = StringField('University', validators=[InputRequired()])
+    student_major = StringField('Major', validators=[InputRequired()])
+    student_faculty = StringField('Faculty', validators=[InputRequired()])
+    student_tuition = StringField('Tuition', validators=[InputRequired()])
+
         
     
 class LoanForm(FlaskForm):

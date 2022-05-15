@@ -55,6 +55,9 @@
             {% set accepted = (loan.id|string) + "_" "Accept" %}
             {% set declined = (loan.id|string) + "_" "Decline" %}
             {% set undo = (loan.id|string) + "_" "Undo" %}
+            {%if loan.status == "Accepted"%}
+            {% set approval = (loan.id|string) + "_" "Approve"%}
+            {%endif%}
 
 
             <script>
@@ -63,7 +66,11 @@
             }
             </script>
 
-            <td> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{accepted}}>Accept</button> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-secondary" value={{declined}}>Decline</button> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{undo}}>Undo</button></td>
+            <td> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{accepted}}>Accept</button> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-secondary" value={{declined}}>Decline</button> <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{undo}}>Undo</button>
+            {%if loan.status == "Accepted"%}
+            <button onclick="AcceptFunct()" type="submit" name="submit" class="btn btn-primary" value={{approval}}>Approve Loan</button>
+            {%endif%}
+            </td>
         </tr>
         
         {%endif%}

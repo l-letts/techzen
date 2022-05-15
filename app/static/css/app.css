@@ -2,6 +2,21 @@ body {
     padding-top: 5rem;
 }
 
+.boximages {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.padleft {
+    margin: 50px;
+}
+
+.displaypic {
+    margin: 1px;
+    width: auto;
+    height: 400px;
+}
+
 .gallery {
     display: grid;
     grid-template-columns: 365px 365px 365px;
@@ -62,15 +77,11 @@ body {
     margin-top: 5%;
     padding: 50px;
     border-style: groove;
-
-    
 }
 
 .register-form {
-
     border-style: groove;
     box-shadow: 5px 10px 9px #8888883d;
     border-radius: 20px;
     border-color: #8080800f;
 }
-

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block main %}
+{% include 'flash_messages.html' %}
+<h1> Loan Schedule </h1>
+<p> You are viewing information on <strong>Loan {{loanid}}</strong>.</p>
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+    </style>
+<div>
+    <table>
+        <form action="{{ url_for('dashboard') }}" method="post" enctype="multipart/form-data">
+            
+
+        <tr>
+            <th>Count</th>
+            <th>Month</th>
+            <th>Amount</th>
+            <th>To Pay</th>
+            <th>Interest</th>
+
+        </tr>
+
+
+        {% for info in infolst%}
+            
+
+        <tr>
+            <td> {{ info[0] }} </td>
+            <td> {{ info[1] }} </td>
+            <td> {{ info[2] }} </td>
+            <td> {{ premiumpay }} </td>
+            <td> {{ info[3] }} </td>
+
+
+        </tr>
+        
+
+
+        {%endfor%}
+        
+    </form>
+    </table>
+
+
+
+{% endblock %}

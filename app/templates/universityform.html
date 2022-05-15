@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1 class="page-header">Guarantor Form</h1>
+
+{% include 'flash_messages.html' %}
+
+
+{# Add the appropriate method and enctype attributes to the form tag to allow for file uploads #}
+<form action="{{ url_for('universityForm') }}" method="post" enctype="multipart/form-data">
+
+  {{ form.csrf_token }}
+  
+  {# Add the file upload field as you learnt for Flask-WTF #}
+  <div class="guaran-app">
+  <div class="form-group">
+    {{ form.sid.label }} {{ form.sid(class="form-control") }}
+    {{ form.university_name.label }} {{ form.university_name(class="form-control") }}
+    {{ form.student_major.label }} {{ form.student_major(class="form-control") }}
+    {{ form.student_faculty.label }} {{ form.student_faculty(class="form-control") }}
+    {{ form.student_tuition.label }} {{ form.student_tuition(class="form-control") }}
+
+
+    </div>
+    <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+    </div>>
+</form>
+  </div>
+
+
+{% endblock %}

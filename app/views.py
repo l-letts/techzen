@@ -8,7 +8,7 @@ from audioop import avg
 import os
 from tabnanny import check
 from app import app, db
-from app.models import Guarantor, SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Loan, AdminLog
+from app.models import Guarantor, University ,SignUpProfile, GraphicalAnalytics, LoanPrioritization, LoanApplication, Payment, Loan, AdminLog
 from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory, Response
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
@@ -45,7 +45,9 @@ def application():
     
     return render_template('application.html')
 
-@app.route('/about/')
+
+
+@app.route('/about')
 def about():
     """Render the website's about page."""
     return render_template('about.html', name="TechZen")
@@ -82,10 +84,8 @@ def payment():
 def average(lst):
     return sum(lst) / len(lst)
 
-def premium(loanamout, interestrate, length):
-    loanamount = 750000
-    interestrate = 0.06
-    length = 60
+def premium(loanamount, interestrate, length):
+
     calc=(loanamount*interestrate/12*(pow(1+interestrate/12,length)))/(pow(1+interestrate/12,length)-1)
     return(calc)
 
@@ -107,24 +107,28 @@ def getpaymenthistory(loanid):
     return (paymentlist)
 # 
 
-@app.route('/getloan/', methods=['POST', 'GET'])
+
+@app.route('/getloan', methods=['POST', 'GET'])
 def getLoan():
-    """Render the website's loan page."""
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
     
     loanquery = Loan.query.filter(Loan.sid == session['sid']).all()
+
     
     if request.method == 'POST' :
-        flash("we got here", "success")
+
         
         raw = request.form['submit']
         loanid, status = raw.split("_")
         
         if status == 'View':
-            flash("we viewing, bois", 'success')
             flash(f"Loanid extracted was: {loanid}", 'success')
+            
 
     
-    return render_template('getLoan.html', loans=loanquery)
+    return render_template('getLoan.html', loans=loanquery, username = session['username'])
 
 @app.route('/dashboard', methods=['POST', 'GET'])
 def dashboard():
@@ -139,6 +143,7 @@ def dashboard():
     loanid = 1
     start_number = 0
     paymentlist = [0]
+    # overallloan=0
     # experiment
     loanlst = Loan.query.filter(Loan.sid == session['sid']).all()
 
@@ -148,7 +153,7 @@ def dashboard():
         paymentlist = getpaymenthistory(loanid)
     # grabs the payment data
     
-    foundvalue = Payment.query.all()
+    foundvalue = Payment.query.filter(Payment.loanid == loanid).all()
     loanquery = Loan.query.all()
     loandetails = [0]
     print("loanquery: ", loanquery)
@@ -164,6 +169,7 @@ def dashboard():
             interestrate = x.interestrate
             length = x.length
             start_date = x.start_date
+            loanstat = "Yes"
             print("Loan info: ", loandetails)
             i = 0
             for c in monthdictionary:
@@ -176,7 +182,9 @@ def dashboard():
         loandetails = []
         overallloan = 0
         interestrate = 1
-
+        
+    if loanid == 1:
+        loanstat = "No"
     print("check your loanid: ", loanid)
 
     #iterates through the list and appends payment number
@@ -205,9 +213,11 @@ def dashboard():
                                                 paymentval=foundvalue, 
                                                 paymentlst=json.dumps(paymentlist), 
                                                 overall=json.dumps(overallloan), 
-                                                loanpay=json.dumps(loanpay), 
+                                                loanpay=json.dumps(loanpay),
+                                                paydays = json.dumps([0]), 
                                                 days=json.dumps(days), 
-                                                interest=json.dumps(interestprojection))
+                                                interest=json.dumps(interestprojection),
+                                                loanstat = loanstat)
         
 
     # minimumpayback = (overallloan * 0.06) + 5000
@@ -223,6 +233,7 @@ def dashboard():
     
     
     loanpay = []
+    loandata = []
     days = []
     i = start_number
     interestrate = interestrate / 100
@@ -233,27 +244,51 @@ def dashboard():
     interest = 0
     interestprojection = []
     interestpayback = 0
+    
     temploanpremium = overallloan
     
+    
+    #delete the for loop if original is the concern.
     days.append(str(monthdictionary[(i % 12)]))
     loanpay.append(temploanpremium)
+    loandata.append(temploanpremium)
+    for value in foundvalue:
+        i += 1
+        # flash(f"temploanpremium before: {temploanpremium}", "success")
+        temploanpremium = temploanpremium - value.payment_amount
+        loanpay.append(temploanpremium)
+        loandata.append(temploanpremium)
+        # flash(f"value: {value.payment_amount}", "danger")
+        # flash(f"temploanpremium after: {temploanpremium}", "success")
+        days.append(str(monthdictionary[(i % 12)]))
     # This calculates the projected time period expected to pay back the loan.
     # no moratorium
     while (temploanpremium-avgpay) >= 0:
         i += 1
         interestpayback = temploanpremium * (interestrate/12)
         principalamt = avgpay - interestpayback
+        # flash(f"principal amount: {principalamt}", "danger")
         loanpay.append(temploanpremium-principalamt)
+        loandata.append(temploanpremium)
             
         days.append(str(monthdictionary[(i % 12)]))
         temploanpremium = temploanpremium-principalamt
         interestprojection.append(interestpayback) 
         
-        
+    # flash(f"loanpay: {loanpay}", "success")
+    # flash(f"days: {days}", "success")
+    # flash(f"interestprojection: {interestprojection}", "success")
+    
+    #can swap loanpay with loandata for original
+    session['loandata'] = loanpay
+    session['daydata'] = days
+    session['interestdata'] = interestprojection
+    session['loanid'] = loanid
+    session['premiumpay'] = avgpay
     if (temploanpremium-avgpay) < 0:
-            temploanpremium = temploanpremium - temploanpremium
-            loanpay.append(0)
-            days.append(str(monthdictionary[((i+1) % 12)]))     
+        temploanpremium = temploanpremium - temploanpremium
+        loanpay.append(0)
+        days.append(str(monthdictionary[((i+1) % 12)]))     
 
         
 
@@ -275,8 +310,61 @@ def dashboard():
     upperpay = max(paymentlist)
     
     
-    return render_template('dashboard.html', loanlist = loanlst, maxpay=upperpay, paydays = json.dumps(paydays) , usrname=session['username'],paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
+    return render_template('dashboard.html', sid = session['sid'], loanid = loanid, loanamount = overallloan, loanstat = loanstat, loanlist = loanlst, maxpay=upperpay, paydays = json.dumps(paydays) , usrname=session['username'],paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
+@app.route('/schedule', methods=['POST', 'GET'])
+def schedule():
+    
+    # Instantiate your form class
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+    
+    # flash(f"loandata: {session['loandata']}", "success")
+    # flash(f"daydata: {session['daydata']}", "success")
+    # flash(f"interestdata: {session['interestdata']}", "success")
+    
+    
+    infolst = []
+    loandata = session['loandata']
+    daydata = session['daydata']
+    interestdata = session['interestdata']
+    loanid = session['loanid']
+    premiumpay = "${:,.2f}".format(session['premiumpay'])
+    
+    # flash(f"loandata length: {len(session['loandata'])}", 'success')
+    # flash(f"daydata length: {len(session['daydata'])}", 'success')
+    # flash(f"interest length: {len(session['interestdata'])}", 'success')
+    
+    c = 0
+
+    x = 0
+    intcount = len(session['interestdata'])
+
+    for loan in loandata:
+        templst = []
+        templst.append(c+1)
+        templst.append(daydata[c])
+        templst.append("${:,.2f}".format(loan))
+        if x < (intcount-1):
+            idata =interestdata[x]
+            templst.append("${:,.2f}".format(idata))
+        elif x == intcount-1:
+            idata =interestdata[x]
+            templst.append("${:,.2f}".format(idata))
+            x+=1
+        else:
+            templst.append("${:,.2f}".format(0))
+        infolst.append(templst)
+        
+        
+        c+=1
+        if x < (intcount-1):
+            x += 1
+    # flash(f'infolst: {infolst}', "danger")
+    
+    
+    return render_template('schedule.html', premiumpay = premiumpay, loanid = loanid, infolst = infolst, loandata = session['loandata'], daydata = session['daydata'], interestdata = session['interestdata'])
 
     
 @app.route('/priority', methods=['POST', 'GET'])
@@ -291,7 +379,7 @@ def priority():
     # monthdictionary = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     # currentsid = '12345'
     print("dashboard sid: ",session['sid'])
-    flash(session['sid'], "success")
+    # flash(session['sid'], "success")
     loanid = 3
     start_number = 0
     paymentlist = [0]
@@ -306,7 +394,7 @@ def priority():
     for x in loanquery:
         print("your loan is: ", x)
         print("Im in here: ", session['sid'])
-        flash(x, "success")
+        # flash(x, "success")
         if x.sid == int(session['sid']):
 
             loandetails = []
@@ -322,7 +410,7 @@ def priority():
             print("Loan info: ", loandetails)
             loantotallst.append(loandetails)
             print("Loandetails info: ", loantotallst)
-            flash(f"Loandetails info: {loantotallst}", "danger")
+            # flash(f"Loandetails info: {loantotallst}", "danger")
 
     if loanquery==[]:
         print("you shouldn't be here.")
@@ -353,7 +441,7 @@ def priority():
     interestlst = []
     
     
-    flash(f"this is for you kobe {loantotallst[0]}", "success")
+    # flash(f"this is for you kobe {loantotallst[0]}", "success")
     o = 0
     
     for x in loantotallst:
@@ -401,48 +489,52 @@ def priority():
         loaninterests.append(loantotallst[o][0])
         loaninterests.append(sum(interestprojection))
         interestlst.append(loaninterests)
-        flash(f"we got the lst: {interestlst}", "success")
-        flash(f"we tried summing {loaninterests}", "success")
+        # flash(f"we got the lst: {interestlst}", "success")
+        # flash(f"we tried summing {loaninterests}", "success")
 
         print(paymentlist)
         
-        flash(overallloan, "success")
-        flash(interestprojection, "success")
-        flash(session['sid'], "success")
-        flash(f"Iteration = {o}", "danger")
+        # flash(overallloan, "success")
+        # flash(interestprojection, "success")
+        # flash(session['sid'], "success")
+        # flash(f"Iteration = {o}", "danger")
         o+=1
-    flash(f"Simply Put, the two values we working with are: Loanid: {interestlst[0][0]}, Interest: {interestlst[0][1]} ", "danger")
-    flash(f"Loanid: {interestlst[1][0]}, Interest: {interestlst[1][1]} ", "danger")
+    # flash(f"Simply Put, the two values we working with are: Loanid: {interestlst[0][0]}, Interest: {interestlst[0][1]} ", "danger")
+    # flash(f"Loanid: {interestlst[1][0]}, Interest: {interestlst[1][1]} ", "danger")
     
     prioritylst = []
     for x in interestlst:
         prioritylst.append(x[1])
-    flash(prioritylst, "success")
-    higherpriority = max(prioritylst)
-    flash(higherpriority, "success")
-    higherprioritylst = []
-    for x in interestlst:
-        if higherpriority in x:
-            higherprioritylst.append(x[0])
-            higherprioritylst.append(x[1])
-            flash(f"There was, yes: {higherprioritylst}", "danger")
-    flash(f"Therefore, the highest priority to pay back is: {higherpriority}. The loan is: {higherprioritylst[0]}, and the Interest pay back is {higherprioritylst[1]} ", "success")
+    # flash(prioritylst, "success")
+    print("Prioritylst: ", prioritylst)
     loaninfo = []
+    higherprioritylst = []
+    if prioritylst != []:
+        higherpriority = max(prioritylst)
+        # flash(higherpriority, "success")
+        higherprioritylst = []
+        for x in interestlst:
+            if higherpriority in x:
+                higherprioritylst.append(x[0])
+                higherprioritylst.append(x[1])
+                # flash(f"There was, yes: {higherprioritylst}", "danger")
+        # flash(f"Therefore, the highest priority to pay back is: {higherpriority}. The loan is: {higherprioritylst[0]}, and the Interest pay back is {higherprioritylst[1]} ", "success")
+        loaninfo = []
+        
+        for x in loantotallst:
+            # flash(f"Checking this value: {x}", "danger")
+            if higherprioritylst[0] in x:
+                # flash("apparently there is", "danger")
+                overallloan = x[1]
+                interestrate = x[2]
+                length = x[3]
+                loaninfo.append(higherprioritylst[0]) #loanid
+                loaninfo.append("${:,.2f}".format(overallloan))
+                loaninfo.append(interestrate)
+                loaninfo.append(length)
+                loaninfo.append("${:,.2f}".format(higherprioritylst[1])) #loaninterest
     
-    for x in loantotallst:
-        flash(f"Checking this value: {x}", "danger")
-        if higherprioritylst[0] in x:
-            flash("apparently there is", "danger")
-            overallloan = x[1]
-            interestrate = x[2]
-            length = x[3]
-            loaninfo.append(higherprioritylst[0]) #loanid
-            loaninfo.append(overallloan)
-            loaninfo.append(interestrate)
-            loaninfo.append(length)
-            loaninfo.append(higherprioritylst[1]) #loaninterest
-    
-    return render_template('priority.html', loaninfo = loaninfo,prioritylst = higherprioritylst, loanlist = loanlst , usrname=session['username'], paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), interest=json.dumps(interestprojection))
+    return render_template('priority.html', loaninfo = loaninfo,prioritylst = higherprioritylst, loanlist = loanlst , usrname=session['username'])
     
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -482,7 +574,9 @@ def loanApplication():
     applicationform=LoanApplicationForm()
     # Validate file upload on submit
     if request.method == 'POST' :
+        
         # Get file data and save to your uploads folder
+        
         photo = applicationform.photo.data
         photo2 = applicationform.selfie.data
         sid = applicationform.sid.data
@@ -584,7 +678,34 @@ def guarantorForm():
 
     return render_template('guarantorform.html', form=guarantorform)
 
+@app.route('/university', methods=['POST', 'GET'])
+def universityForm():
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
 
+    # Instantiate your form class
+    universityform= UniversityForm()
+    # Validate file upload on submit
+    if request.method == 'POST' and universityform.validate_on_submit():
+        university = University( 
+            sid = universityform.sid.data,
+            university_name= universityform.university_name.data,
+            student_major = universityform.student_major.data,
+            student_faculty= universityform.student_faculty.data,
+            student_tuition= universityform.student_tuition.data
+            
+        )
+        
+        db.session.add(university)
+
+        db.session.commit()
+        
+        
+        flash('University Information saved!', 'success')
+        return redirect(url_for('application'))
+
+    return render_template('universityform.html', form=universityform)
 
 
 @app.route('/loanForm', methods=['POST', 'GET'])
@@ -615,13 +736,73 @@ def graphicalAnalytics():
         db.session.add(loandata)
         print(loandata)
         db.session.commit()
-        flash('added')
         
         flash('Loan Information saved!', 'success')
         return redirect(url_for('dashboard'))
 
     return render_template('graphicalanalyticsform.html', form=loanForm)
 
+@app.route('/loanAdmin', methods=['POST', 'GET'])
+def adminLoan():
+
+    if not session.get('logged_in'):
+        flash('You are not logged in! Please log in and try again.', 'danger')
+        return redirect(url_for('login'))
+
+    # Instantiate your form class
+    
+    loanapp = LoanApplication.query.filter(LoanApplication.id==session['id']).first()
+    unidata = University.query.filter(University.sid==str(loanapp.sid)).first()
+
+    loanapplicant = [loanapp.id, session['applicantname'], loanapp.trn, loanapp.sid, loanapp.sex, loanapp.phonenumber, loanapp.email]
+    uni = [unidata.university_name, unidata.student_major, unidata.student_tuition]
+    imgname = loanapp.photo
+    studentsid = loanapp.sid
+
+    loanForm = LoanForm(obj=loanapp)
+    imageList=get_uploaded_file()
+    imgList = []
+    for image in imageList:
+        if imgname in image:
+
+            imgList.append(image)
+
+    
+    if request.method == 'GET':
+        loanForm.loan_type.data = "Student Loan"
+        loanForm.loan_status.data = "Ongoing"
+        loanForm.moratorium.data = "No"
+        
+    
+    if request.method == 'POST':
+        raw = request.form['submit']
+            
+        loanid, status = raw.split("_")
+        
+        loanForm.populate_obj(loanapp)
+        
+        loandata = Loan( 
+            loan_type = loanForm.loan_type.data,
+            loan_status = loanForm.loan_status.data,
+            sid = loanForm.sid.data,
+            length = loanForm.length.data,
+            interestrate = loanForm.interestrate.data,
+            loanamount = loanForm.loanamount.data,
+            start_date = loanForm.start_date.data,
+            moratorium = loanForm.moratorium.data
+        )
+
+        db.session.add(loandata)
+
+        
+        if status == 'Approved':
+                record = LoanApplication.query.filter(LoanApplication.id == loanid).first()
+                record.status = "Approved"
+        db.session.commit()
+        flash('Loan Approved!', 'success')
+        return redirect(url_for('adminDashboard'))
+    
+    return render_template('graphicalanalyticsform.html', form=loanForm, uni = uni,  loanapp = loanapplicant, applicantname = session['applicantname'], imageList = imgList)
 
 @app.route('/loananalyticsprioritizerform', methods=['POST', 'GET'])
 def loanAnalyticsPrioritizer():
@@ -673,7 +854,7 @@ def adminDashboard():
     undo = "You undid an applicant's status: "
     if request.method == 'POST':
         
-        if (request.form['submit'] == 'Accepted') or (request.form['submit'] == 'Declined'):
+        if (request.form['submit'] == 'Accepted') or (request.form['submit'] == 'Declined') or (request.form['submit'] == 'Approved'):
             condition = request.form['submit']
             print(f"review condition: {condition}")
             return render_template('review.html', loanapplicants = loanapplicants, condition = condition)  
@@ -736,7 +917,17 @@ def adminDashboard():
                 db.session.commit()
                 return redirect(url_for('adminDashboard'))
             
+            if status == 'Approve':
+
+                
+                session['tsid'] = loanapp.sid
+                session['id'] = loanapp.id
+                session['applicantname'] = applicantname
+                
+
+                return redirect(url_for('adminLoan'))
         # if request.form['review']:
+            
                  
     
     return render_template('adminDashboard.html', loanapplicants =loanapplicants)
@@ -759,6 +950,7 @@ def get_uploaded_file():
     upload_files=[]
     for subdir, dirs, files in os.walk(rootdir + '/uploads'):    
         for file in files:
+        
             upload_files.append(file)
     upload_files.pop(0)     
     return upload_files
@@ -800,8 +992,7 @@ def login():
                 flash('Successfully logged in', 'success')
                 searchstudentid = SignUpProfile.query.all()
                 
-                global sid
-                global usrname
+
                 for x in searchstudentid:
                     if x.username == username:
                         sid = x.sid

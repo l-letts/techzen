@@ -1,12 +1,27 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<h1 class="page-header">Graphical Analytics Form</h1>
+{% if session.is_admin %}
+
+<h1 class="page-header"><br>Approve Loan</h1>
+{%elif session.is_student %}
+<h1 class="page-header">Add Loan</h1>
+{%endif%}
 
 {% include 'flash_messages.html' %}
+{% if session.is_admin %}
+
+<p> <br>Set the loan arrangements for applicant: <strong>{{applicantname}}</strong>.</p>
+<p> Please scroll down below the form to see more information about <strong>{{applicantname}}</strong></p>
+<p> Please check to ensure that the data entered below is correct. </p>
+{%endif%}
+
+
+
 
 
 {# Add the appropriate method and enctype attributes to the form tag to allow for file uploads #}
+{%if session.is_student %}
 <form action="{{ url_for('graphicalAnalytics') }}" method="post" enctype="multipart/form-data"> 
   {{ form.csrf_token }}
   
@@ -24,7 +39,132 @@
   </div>
   <button type="submit" name="submit" class="btn btn-primary">Submit</button>
 </form>
+
+
   </div>
 
+
+
+<div>
+{%endif%}
+ 
+{%if session.is_admin %}
+<form action="{{ url_for('adminLoan') }}" method="post" enctype="multipart/form-data"> 
+  {{ form.csrf_token }}
+  
+  {# Add the file upload field as you learnt for Flask-WTF #}
+  <div class="form-group">
+    {{ form.loan_type.label }} {{ form.loan_type(class="form-control") }}
+    {{ form.loan_status.label }} {{ form.loan_status(class="form-control") }}
+    {{ form.sid.label }} {{ form.sid(class="form-control") }}
+    {{ form.length.label }} {{ form.length(class="form-control") }}
+    {{ form.interestrate.label }} {{ form.interestrate(class="form-control") }}
+    {{ form.loanamount.label }} {{ form.loanamount(class="form-control") }}
+    {{ form.start_date.label }} {{ form.start_date(class="form-control") }}
+    {{ form.moratorium.label }} {{ form.moratorium(class="form-control") }}
+    
+    {% set approved = (loanapp[0]|string) + "_" "Approved" %}
+
+  </div>
+  <button type="submit" name="submit" class="btn btn-primary" value={{approved}}>Submit</button>
+</form>
+
+
+  </div>
+
+
+
+<div>
+{%endif%}
+
+{% if session.is_admin %}
+
+<style>
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+  </style>
+<div class="padleft">
+  <p><br><strong>The applicant's data is presented below.</strong></p>
+  <table>
+      <form action="{{ url_for('adminDashboard') }}" method="post" enctype="multipart/form-data">
+      <tr>
+          <th>Applicant ID</th>
+          <th>Name</th>
+          <th>University</th>
+          <th>Major</th>
+          <th>Tuition</th>
+          <th>TRN</th>
+          <th>Student ID</th>
+          <th>Sex</th>
+          <th>Phone Number</th>
+          <th>Email</th>
+
+      </tr>
+
+          
+
+      <tr>
+          <td> {{ loanapp[0] }} </td>
+          <td> {{ loanapp[1] }} </td>
+          <td> {{uni[0]}} </td>
+          <td>  {{uni[1]}}</td>
+          <td>  {{uni[2]}}</td>
+          <td> {{ loanapp[2] }} </td>
+          <td> {{ loanapp[3] }} </td>
+          <td> {{ loanapp[4] }} </td>
+          <td> {{ loanapp[5] }} </td>
+          <td> {{ loanapp[6] }} </td>
+          <td> <div class ="boximages">
+           
+            </div> </td>
+
+
+
+
+
+
+
+
+
+      </tr>
+      
+
+
+
+  
+
+  </form>
+  </table>
+  <p> <br><strong>Photo of the applicant: </strong></p>
+  {%  for image in imageList %}
+            
+            
+  <img class= "displaypic" src = "{{ url_for('get_image', filename=image) }}" />
+
+
+
+{% endfor %}
+  {%endif%}
+
+</div>
+
+
+  {# Below here is the applicant's data. #}
+
+  
+  
 
 {% endblock %}

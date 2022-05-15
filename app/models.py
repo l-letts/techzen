@@ -58,20 +58,20 @@ class LoanApplication(db.Model):
 class University(db.Model):
     __tablename__ = 'university'
     sid = db.Column(db.String(80), primary_key=True)
-    university_name = db.Column(db.Integer)
+    university_name = db.Column(db.String(255))
     student_major = db.Column(db.String(255))
     student_faculty = db.Column(db.String(255))
     student_tuition = db.Column(db.String(255))
-    univeristy_contact = db.Column(db.Integer)
+
     
 
-    def __init__(self, sid, university_name, student_major, student_faculty, student_tuition, university_contact):
+    def __init__(self, sid, university_name, student_major, student_faculty, student_tuition):
         self.student_tuition = student_tuition
         self.university_name = university_name
         self.student_major = student_major
         self.student_faculty = student_faculty
         self.sid = sid
-        self.university_contact = university_contact
+
 
 class CreditScore(db.Model):
     __tablename__ = 'creditscore'

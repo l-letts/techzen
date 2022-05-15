@@ -2,12 +2,69 @@
 
 {% block main %}
 {% include 'flash_messages.html' %}
-
 <h1> Priority List </h1>
+{% if loaninfo == [] %}
+    <p> Please note! <strong>{{session['username']}}</strong> has no loans!  </p>
+
+
+{%else%}
+
+
+
 <p> The recommendation is to focus on:</p>
 <p> <strong> Loan ID: {{ loaninfo[0] }} </strong> </p>
 <p>The Overall Loan Amount: {{ loaninfo[1] }} </p>
 <p>The Interest Rate: {{ loaninfo[2] }}% </p>
 <p>The time to pay back: {{ loaninfo[3] }} months </p>
 <p>The total interest would be: {{ loaninfo[4] }} </p>
+
+{%endif%}
+
+<style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+    </style>
+<div>
+    <table>
+        <form action="{{ url_for('priority') }}" method="post" enctype="multipart/form-data">
+        <tr>
+            <th>Loan ID</th>
+            <th>Amount</th>
+            <th>Interest Rate</th>
+            <th>Length</th>
+            <th>Interest</th>
+        </tr>
+
+            
+
+        <tr>
+            <td> {{ loaninfo[0] }} </td>
+            <td> {{ loaninfo[1] }} </td>
+            <td> {{ loaninfo[2] }} </td>
+            <td> {{ loaninfo[3] }} </td>
+            <td> {{ loaninfo[4] }}</td>
+        </tr>
+        
+
+
+
+    
+
+    </form>
+    </table>
+
+
 {% endblock %}

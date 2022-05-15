@@ -3,8 +3,8 @@
 {% block main %}
 
 
-<h1> Loan List </h1>
-
+<h1> Your Loans </h1>
+<p> All the loans for <strong>{{username}}</strong> will be shown below: </p>
 
 {% include 'flash_messages.html' %}
 <style>
@@ -26,7 +26,7 @@
     </style>
 <div>
     <table>
-        <form action="{{ url_for('getLoan') }}" method="post" enctype="multipart/form-data">
+        <form action="{{ url_for('dashboard') }}" method="post" enctype="multipart/form-data">
 
         <tr>
             <th>Loan ID</th>
@@ -42,15 +42,15 @@
         <tr>
             <td> {{ loan.loanid }} </td>
             <td> {{ loan.sid }} </td>
-            <td> {{ loan.loanamount }} </td>
+            <td> {{ "${:,.2f}".format(loan.loanamount) }} </td>
             <td> {{ loan.start_date }} </td>
 
 
             {% set view = (loan.loanid|string) + "_" "View" %}
 
 
-            <td> <button  type="submit" name="submit" class="btn btn-primary" value={{view}}>View Graph</button></td>
-        
+            <td><button  type="submit" name="submit" class="btn btn-primary" value={{loan.loanid}}> View in Dashboard</button></td>
+
 
         </tr>
         
