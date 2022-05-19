@@ -32,7 +32,8 @@
   <p> Your SID is <strong>{{sid}}</strong></p>
   <p> Choose a record from the list below: </p>
   <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('graphicalAnalytics') }}" >Add Loan</a></button>
-{% for loan in loanlist %}
+<br> <br>
+  {% for loan in loanlist %}
 
     
         <button  type="submit" name="submit" class="btn btn-primary" value={{loan.loanid}}> Loan {{loan.loanid}}</button>
@@ -41,15 +42,18 @@
 
 
 {%if loanstat == "No"%}
+<br>
+<br>
 <p> If you do not see any records, please apply for a loan or add one, and try again. </p>
 {%endif%}
 {%if loanstat == "Yes"%}
 
 
-<button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('schedule') }}" >Go to Schedule</a> </button> 
+<button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('schedule') }}" >View Loan Schedule</a> </button> 
 
 
-
+<br>
+<br>
 <h4> Showing information on Loan {{loanid}}</h4>
 <p> Your Loan Principal is: {{"${:,.2f}".format(loanamount)}}</p>
 </form>
@@ -62,19 +66,22 @@
 
       <!-- note to Larnelle, remove the hyperlink formatting from the button please -->
       <button type="submit" name="submit" class="btn btn-primary"><a class="removeunder" href="{{ url_for('payment') }}" >Add Payment</a></button>
+      
     </div>
     
   </div>
-
+  <br>
+  <br>
   <div>
-    <h1 class="projection">Projected Loan with No Moratorium</h1>
+    <h1 class="projection">Projected Loan Pay Back</h1>
     <p> This is the projected time required to pay back the loan, based on average pay, and interest rate. </p>
     <div class="graphcard">
       <canvas id="myChart2"></canvas>
     </div>
   </div>
 
-
+<br>
+<br>
   <div>
     <h1 class="interest">Interest</h1>
     <p> This is the interest accrued over the time frame. </p>

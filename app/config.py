@@ -6,7 +6,11 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'Som3$ec5etK*y'
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME') or 'admin'
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'Password123'
+    
+    # This is where photos are uploaded.
     UPLOAD_FOLDER='./uploads'
+    
+    # The database link is provided here.
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql://techzen:123@localhost/techzendb'
     SQLALCHEMY_TRACK_MODIFICATIONS = False # This is just here to suppress a warning from SQLAlchemy as it will soon be removed
 

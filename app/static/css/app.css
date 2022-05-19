@@ -36,10 +36,7 @@ body {
 
 .graphcard {
     width: 150vh;
-    margin-left: 30vh;
-    justify-content: center;
-    display: flex;
-    align-items: center;
+    margin-left: 0vh;
 }
 
 .logoimg {

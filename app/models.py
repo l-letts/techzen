@@ -161,18 +161,18 @@ class Guarantor(db.Model):
     guarantor_phonenumber = db.Column(db.Integer)
     guarantor_salary = db.Column(db.Float)
     guarantor_address = db.Column(db.String(255))
-    loanid = db.Column(db.String(80))
+    # loanid = db.Column(db.String(80))
     sid = db.Column(db.String(80))
     
 
-    def __init__(self, first_name, last_name, guarantor_occupation, guarantor_phonenumber, guarantor_salary,guarantor_address,loanid, sid):
+    def __init__(self, first_name, last_name, guarantor_occupation, guarantor_phonenumber, guarantor_salary,guarantor_address, sid):
         self.first_name = first_name
         self.last_name = last_name
         self.guarantor_occupation = guarantor_occupation
         self.guarantor_phonenumber = guarantor_phonenumber
         self.guarantor_salary = guarantor_salary
         self.guarantor_address = guarantor_address
-        self.loanid = loanid
+
         self.sid = sid
         
 

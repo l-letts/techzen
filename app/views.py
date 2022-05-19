@@ -36,6 +36,15 @@ def home():
     """Render website's home page."""
     return render_template('home.html')
 
+
+
+# 
+# The Application Route displays the various application forms:
+# Student Information, Guarantor Information and University Information
+# So that the applicant may apply for a loan through the system.
+# 
+
+
 @app.route('/application')
 def application():
     """Render website's home page."""
@@ -51,6 +60,15 @@ def application():
 def about():
     """Render the website's about page."""
     return render_template('about.html', name="TechZen")
+
+
+
+# 
+# On the Payment route, the applicant is able to make a payment
+# for a loan in which they have taken. This directs the user to a
+# form where the user inputs values for their Loan ID, Student ID,
+# The amount they want to pay, as well as the current date.
+#  
 
 @app.route('/payment', methods=['POST', 'GET'])
 def payment():
@@ -81,33 +99,48 @@ def payment():
     
     return render_template('payment.html', form=paymentform)
 
+# This function is used to find the average of a list.
 def average(lst):
     return sum(lst) / len(lst)
 
+# This function calculates loan premium based on the formula:
+# [P x R x (1+R)^N] / [(1+R)^N-1]
+# The value is stored in the variable calc, and returned.
 def premium(loanamount, interestrate, length):
 
     calc=(loanamount*interestrate/12*(pow(1+interestrate/12,length)))/(pow(1+interestrate/12,length)-1)
     return(calc)
 
+# This function assists the dashboard by collecting the payment history of a particular
+# loan, specified by passing in a Loan ID as its paramater. The Payment History
+# is collected from the database and then appended to a list.
+# Given that the list is empty, this means that there have been no payments made on the
+# loan. In this case, the payment list is set at Zero (0).
+# The final list is returned to the dashboard.
 def getpaymenthistory(loanid):
     
     paymentlist = []
     foundvalue = Payment.query.filter(Payment.loanid==loanid).all()
-    print("foundvalue: ", foundvalue)
+
     for x in foundvalue:
         if x.sid == session['sid']:
             paymentlist.append(x.payment_amount)
-            print("payment now is finally: ",paymentlist)
+
         
     if paymentlist==[]:
-        print("you shouldn't be here.")
+
         paymentlist = [0]
         interestrate = 1
     
     return (paymentlist)
-# 
 
 
+# On the getLoan route, the user's loans are all gathered from the database
+# and are displayed to the front end in a table form, so that the user may
+# see information on all their active loans.
+# Should the user need to see his/her loans in their dashboard, in graphical
+# format, they may click "View in Dashboard", in order to pass the loan id
+# to the dashboard and display the loan.
 @app.route('/getloan', methods=['POST', 'GET'])
 def getLoan():
     if not session.get('logged_in'):
@@ -130,39 +163,56 @@ def getLoan():
     
     return render_template('getLoan.html', loans=loanquery, username = session['username'])
 
+
+# The dashboard is the section that speaks to the requirement of the Graphical Analytics.
+# On the Dashboard, the user is able to see information on their loans.
+# The user is able to see information on their Payment History, Their Projected Loan Payback time, and
+# The Interest that would be accrued alongside their payback.
+# The route begins by grabbing the SID of the logged in user, and checks the database for any loan
+# That the user has by filtering the database using their SID.
+# Once the query is finished, if the user has any loans, the system displays them in a list format, which the
+# user is able to navigate by clicking, to see their different loans.
+# If the user does not have any loans, they may add a loan using the "Add Loan" button.
 @app.route('/dashboard', methods=['POST', 'GET'])
 def dashboard():
     if not session.get('logged_in'):
         flash('You are not logged in! Please log in and try again.', 'danger')
         return redirect(url_for('login'))
-    #this works
- 
+
+    # Initializes the list of months.
     monthdictionary = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     currentsid = '12345'
-    print("dashboard sid: ",session['sid'])
+    
+    # Initializes variables. These variables will be overwritten in the case
+    # that the user has loans active.
     loanid = 1
     start_number = 0
     paymentlist = [0]
-    # overallloan=0
-    # experiment
+
+    # The query checks the database for loans belonging to the SID of the logged in user.
     loanlst = Loan.query.filter(Loan.sid == session['sid']).all()
 
+
+    # The request method accepts the loan id from the buttons on the page.
+    # This is where user will navigate their various loans.
     if request.method == 'POST':
         loanid = request.form['submit']
-        print(loanid)
+
         paymentlist = getpaymenthistory(loanid)
     # grabs the payment data
     
+    # This query grabs the payment information of the user's loan.
     foundvalue = Payment.query.filter(Payment.loanid == loanid).all()
     loanquery = Loan.query.all()
     loandetails = [0]
-    print("loanquery: ", loanquery)
+
     
-    
+    # The for loop checks the loan and initializes key variables.
+    loanid = int(loanid)
     for x in loanquery:
-        print("your loan is: ", x)
-        print("Im in here: ", session['sid'])
-        if x.loanid == int(loanid):
+
+
+        if x.loanid == loanid:
             loandetails = x
             loanid = x.loanid
             overallloan = x.loanamount
@@ -170,40 +220,26 @@ def dashboard():
             length = x.length
             start_date = x.start_date
             loanstat = "Yes"
-            print("Loan info: ", loandetails)
+
             i = 0
             for c in monthdictionary:
                 if start_date == c:
                     start_number = i
                 i+=1
-    print("your start number: ", start_number)
+
     if loanquery==[]:
-        print("you shouldn't be here.")
+
         loandetails = []
         overallloan = 0
         interestrate = 1
         
     if loanid == 1:
         loanstat = "No"
-    print("check your loanid: ", loanid)
 
-    #iterates through the list and appends payment number
-    # for x in foundvalue:
-    #     if x.sid == session['sid']:
-    #         paymentlist.append(x.payment_amount)
-    #         print("payment now is finally: ",paymentlist)
-        
-    # if paymentlist==[]:
-    #     print("you shouldn't be here.")
-    #     paymentlist = [0]
-    #     interestrate = 1
-        
-    # print(paymentlist)
-    # Averages payment so we can tell how much paid monthly
 
-    # if avgpayment is below the minimum payback, the minimum payback value is used
-    # This is because, if the value is below the interest, then there will be no progress made
-    # towards paying off the loan. The minimum value in this case, is the interest accrued, + 5000 for good measure.
+
+    # In the case that there are no loans, the information of the user is passed through
+    # this if statement to prevent calculation errors.
     if loandetails == [0]:
         overallloan = 0
         loanpay = [0]
@@ -220,27 +256,23 @@ def dashboard():
                                                 loanstat = loanstat)
         
 
-    # minimumpayback = (overallloan * 0.06) + 5000
-    # print("minimum payback is: ", minimumpayback)
-
-    # if avgpayment < minimumpayback:
-    #     avgpayment = minimumpayback
-        
-    # print(paymentlist)
-    
-
-    # avgpay is equal to the average payment made.
-    
+   
+    # If there are loans active for the user, the if statement is ignored, and the program
+    # continues as planned.
     
     loanpay = []
     loandata = []
     days = []
     i = start_number
+    
+    # the interest rate is initialized as a decimal, to account for percentages.
     interestrate = interestrate / 100
+    
+    # The premium is calculated by running the premium function and passing in the loan principal, interest rate
+    # and the length of the loan.
     avgpay = premium(overallloan, interestrate, length)
     loanpremium = avgpay * length
-    print("You must pay back: ", loanpremium)
-    print("avg pay is: ", avgpay)
+
     interest = 0
     interestprojection = []
     interestpayback = 0
@@ -248,26 +280,26 @@ def dashboard():
     temploanpremium = overallloan
     
     
-    #delete the for loop if original is the concern.
+    # The values used in the graphs are calculated here.
+    # This calculates the interest accrued as well as the
+    # loan projection.
     days.append(str(monthdictionary[(i % 12)]))
     loanpay.append(temploanpremium)
     loandata.append(temploanpremium)
     for value in foundvalue:
         i += 1
-        # flash(f"temploanpremium before: {temploanpremium}", "success")
+
         temploanpremium = temploanpremium - value.payment_amount
         loanpay.append(temploanpremium)
         loandata.append(temploanpremium)
-        # flash(f"value: {value.payment_amount}", "danger")
-        # flash(f"temploanpremium after: {temploanpremium}", "success")
+
         days.append(str(monthdictionary[(i % 12)]))
+        
     # This calculates the projected time period expected to pay back the loan.
-    # no moratorium
     while (temploanpremium-avgpay) >= 0:
         i += 1
         interestpayback = temploanpremium * (interestrate/12)
         principalamt = avgpay - interestpayback
-        # flash(f"principal amount: {principalamt}", "danger")
         loanpay.append(temploanpremium-principalamt)
         loandata.append(temploanpremium)
             
@@ -275,11 +307,10 @@ def dashboard():
         temploanpremium = temploanpremium-principalamt
         interestprojection.append(interestpayback) 
         
-    # flash(f"loanpay: {loanpay}", "success")
-    # flash(f"days: {days}", "success")
-    # flash(f"interestprojection: {interestprojection}", "success")
+
     
-    #can swap loanpay with loandata for original
+    # This section initializes key information as session variables, so
+    # that the system may use the variable in other sections of the program.
     session['loandata'] = loanpay
     session['daydata'] = days
     session['interestdata'] = interestprojection
@@ -292,16 +323,7 @@ def dashboard():
 
         
 
-    print(days)
-    print(paymentlist)
-    
-    
-    # 
-    
-    # abc = Payment.query.filter(Payment.loanid==loanid).first()
-    # abc = paymentlist.payment_date
-    
-    # print("paylist = ", abc)
+
     paydays = []
     i = start_number
     for x in paymentlist:
@@ -312,6 +334,9 @@ def dashboard():
     
     return render_template('dashboard.html', sid = session['sid'], loanid = loanid, loanamount = overallloan, loanstat = loanstat, loanlist = loanlst, maxpay=upperpay, paydays = json.dumps(paydays) , usrname=session['username'],paymentval=foundvalue, paymentlst=json.dumps(paymentlist), overall=json.dumps(overallloan), loanpay=json.dumps(loanpay), days=json.dumps(days), interest=json.dumps(interestprojection))
     
+    # The schedule takes in the loan id of the loan selected and displays to the front end
+    # the schedule that the applicant has to pay back the loan if they follow the loan premium,
+    # and pay that amount monthly.
 @app.route('/schedule', methods=['POST', 'GET'])
 def schedule():
     
@@ -319,11 +344,7 @@ def schedule():
     if not session.get('logged_in'):
         flash('You are not logged in! Please log in and try again.', 'danger')
         return redirect(url_for('login'))
-    
-    # flash(f"loandata: {session['loandata']}", "success")
-    # flash(f"daydata: {session['daydata']}", "success")
-    # flash(f"interestdata: {session['interestdata']}", "success")
-    
+
     
     infolst = []
     loandata = session['loandata']
@@ -332,10 +353,7 @@ def schedule():
     loanid = session['loanid']
     premiumpay = "${:,.2f}".format(session['premiumpay'])
     
-    # flash(f"loandata length: {len(session['loandata'])}", 'success')
-    # flash(f"daydata length: {len(session['daydata'])}", 'success')
-    # flash(f"interest length: {len(session['interestdata'])}", 'success')
-    
+
     c = 0
 
     x = 0
@@ -361,12 +379,16 @@ def schedule():
         c+=1
         if x < (intcount-1):
             x += 1
-    # flash(f'infolst: {infolst}', "danger")
+
     
     
     return render_template('schedule.html', premiumpay = premiumpay, loanid = loanid, infolst = infolst, loandata = session['loandata'], daydata = session['daydata'], interestdata = session['interestdata'])
 
     
+    # This section uses similar code to that of the dashboard.
+    # The difference here, however, is that the priority calculates the same information
+    # in order to grab the loan out of a list that is calculated to select the loan
+    # with the highest priority.
 @app.route('/priority', methods=['POST', 'GET'])
 def priority():
     
@@ -374,27 +396,21 @@ def priority():
     if not session.get('logged_in'):
         flash('You are not logged in! Please log in and try again.', 'danger')
         return redirect(url_for('login'))
-    #this works
- 
-    # monthdictionary = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    # currentsid = '12345'
-    print("dashboard sid: ",session['sid'])
-    # flash(session['sid'], "success")
+
+
     loanid = 3
     start_number = 0
     paymentlist = [0]
-    # experiment
+
     
     loanlst = Loan.query.filter(Loan.sid == session['sid']).all()
     loanquery = Loan.query.all()
     loandetails = [0]
-    print("loanquery: ", loanquery)
+
     
     loantotallst = []
     for x in loanquery:
-        print("your loan is: ", x)
-        print("Im in here: ", session['sid'])
-        # flash(x, "success")
+
         if x.sid == int(session['sid']):
 
             loandetails = []
@@ -407,41 +423,28 @@ def priority():
             loandetails.append(overallloan)
             loandetails.append(interestrate)
             loandetails.append(length)
-            print("Loan info: ", loandetails)
+
             loantotallst.append(loandetails)
-            print("Loandetails info: ", loantotallst)
-            # flash(f"Loandetails info: {loantotallst}", "danger")
 
     if loanquery==[]:
-        print("you shouldn't be here.")
+
         loandetails = []
         overallloan = 0
         interestrate = 1
 
-    print("check your loanid: ", loanid)
 
 
-    # if loandetails == [0]:
-    #     overallloan = 0
-    #     loanpay = [0]
 
-    #     interestprojection = [0]
-    #     return render_template('dashboard.html',usrname=session['username'],
-    #                                             paymentlst=json.dumps(paymentlist), 
-    #                                             overall=json.dumps(overallloan), 
-    #                                             loanpay=json.dumps(loanpay), 
-    #                                             interest=json.dumps(interestprojection))
-        
-# assigning til i see if correct
+   
     interestrate = 6
     overallloan = 100
     length = 60
     
-    # check if this stores properly
+    
     interestlst = []
     
     
-    # flash(f"this is for you kobe {loantotallst[0]}", "success")
+    
     o = 0
     
     for x in loantotallst:
@@ -456,8 +459,7 @@ def priority():
         interestrate = interestrate / 100
         avgpay = premium(overallloan, interestrate, length)
         loanpremium = avgpay * length
-        print("You must pay back: ", loanpremium)
-        print("avg pay is: ", avgpay)
+
         interest = 0
         interestprojection = []
         interestpayback = 0
@@ -470,14 +472,14 @@ def priority():
         
         
         
-        # no moratorium
+
         while (temploanpremium-avgpay) >= 0:
             i += 1
             interestpayback = temploanpremium * (interestrate/12)
             principalamt = avgpay - interestpayback
             loanpay.append(temploanpremium-principalamt)
                 
-            # days.append(str(monthdictionary[(i % 12)]))
+
             temploanpremium = temploanpremium-principalamt
             interestprojection.append(interestpayback) 
             
@@ -489,42 +491,33 @@ def priority():
         loaninterests.append(loantotallst[o][0])
         loaninterests.append(sum(interestprojection))
         interestlst.append(loaninterests)
-        # flash(f"we got the lst: {interestlst}", "success")
-        # flash(f"we tried summing {loaninterests}", "success")
 
-        print(paymentlist)
-        
-        # flash(overallloan, "success")
-        # flash(interestprojection, "success")
-        # flash(session['sid'], "success")
-        # flash(f"Iteration = {o}", "danger")
+
         o+=1
-    # flash(f"Simply Put, the two values we working with are: Loanid: {interestlst[0][0]}, Interest: {interestlst[0][1]} ", "danger")
-    # flash(f"Loanid: {interestlst[1][0]}, Interest: {interestlst[1][1]} ", "danger")
+
     
     prioritylst = []
     for x in interestlst:
         prioritylst.append(x[1])
-    # flash(prioritylst, "success")
-    print("Prioritylst: ", prioritylst)
+
+
     loaninfo = []
     higherprioritylst = []
     if prioritylst != []:
         higherpriority = max(prioritylst)
-        # flash(higherpriority, "success")
+
         higherprioritylst = []
         for x in interestlst:
             if higherpriority in x:
                 higherprioritylst.append(x[0])
                 higherprioritylst.append(x[1])
-                # flash(f"There was, yes: {higherprioritylst}", "danger")
-        # flash(f"Therefore, the highest priority to pay back is: {higherpriority}. The loan is: {higherprioritylst[0]}, and the Interest pay back is {higherprioritylst[1]} ", "success")
+                
         loaninfo = []
         
         for x in loantotallst:
-            # flash(f"Checking this value: {x}", "danger")
+            
             if higherprioritylst[0] in x:
-                # flash("apparently there is", "danger")
+                
                 overallloan = x[1]
                 interestrate = x[2]
                 length = x[3]
@@ -537,6 +530,8 @@ def priority():
     return render_template('priority.html', loaninfo = loaninfo,prioritylst = higherprioritylst, loanlist = loanlst , usrname=session['username'])
     
 
+# The register route is pretty much self explanatory. This is the standard
+# sign up page for our user.
 @app.route('/register', methods=['POST', 'GET'])
 def register():
 
@@ -564,6 +559,11 @@ def register():
 
     return render_template('signup.html', form=registerform)
 
+# In the loan application route, the user is required to submit information
+# for their application profile in order to receive a loan.
+# In this route, the user is also asked to upload two photos, of which will be
+# checked alongside each other for their similarity status.
+# This is done using the Face Verification API by PresentID.
 @app.route('/apply', methods=['POST', 'GET'])
 def loanApplication():
     if not session.get('logged_in'):
@@ -646,7 +646,7 @@ def loanApplication():
 
 
     
-    
+# The guarantorForm route is where the user will input information relating to their guarantor. 
 @app.route('/guarantor', methods=['POST', 'GET'])
 def guarantorForm():
     if not session.get('logged_in'):
@@ -664,7 +664,7 @@ def guarantorForm():
             guarantor_phonenumber = guarantorform.gphone.data,
             guarantor_salary = guarantorform.gsalary.data,
             guarantor_address = guarantorform.gaddress.data,
-            loanid = guarantorform.loanid.data,
+            
             sid = guarantorform.sid.data
         )
         
@@ -678,6 +678,8 @@ def guarantorForm():
 
     return render_template('guarantorform.html', form=guarantorform)
 
+# The University route is where the user will input information relating to their university.
+# This is where the user's tuition and major are collected. 
 @app.route('/university', methods=['POST', 'GET'])
 def universityForm():
     if not session.get('logged_in'):
@@ -708,6 +710,7 @@ def universityForm():
     return render_template('universityform.html', form=universityform)
 
 
+# This route is where the user is able to add new loans to their account.
 @app.route('/loanForm', methods=['POST', 'GET'])
 def graphicalAnalytics():
 
@@ -742,6 +745,8 @@ def graphicalAnalytics():
 
     return render_template('graphicalanalyticsform.html', form=loanForm)
 
+# This is the route where the ADMIN will be able to approve a loan for the user, inputting
+# details relating to their loan.
 @app.route('/loanAdmin', methods=['POST', 'GET'])
 def adminLoan():
 
@@ -804,6 +809,10 @@ def adminLoan():
     
     return render_template('graphicalanalyticsform.html', form=loanForm, uni = uni,  loanapp = loanapplicant, applicantname = session['applicantname'], imageList = imgList)
 
+
+# This route is where the priority of the loans that the user has is displayed.
+# Given that the user has multiple loans, the system prioritizes the loan with the highest
+# interest accrued. This is the Debt Avalanche method of repayment.
 @app.route('/loananalyticsprioritizerform', methods=['POST', 'GET'])
 def loanAnalyticsPrioritizer():
     if not session.get('logged_in'):
@@ -821,8 +830,7 @@ def loanAnalyticsPrioritizer():
             interest= loananalyticsprioritizerform.interest.data
         )
         
-        # Error here, new rows in database, need to migrate.
-        
+       
         db.session.add(loananalyticsprioritizer)
         print(loananalyticsprioritizer)
         db.session.commit()
@@ -834,6 +842,9 @@ def loanAnalyticsPrioritizer():
     return render_template('loananalyticsprioritizerform.html', form=loananalyticsprioritizerform)
 
 
+# The ADMIN dashboard is where the ADMIN is able to see all applications. They are
+# able to accept applicants or deny them here. After Accepting and applicant, the ADMIN
+# must navigate to the review route (Accept, Decline), to complete their job.
 @app.route('/admin_dashboard', methods = ['POST', 'GET'])
 def adminDashboard():
     if not session.get('logged_in'):
@@ -932,6 +943,8 @@ def adminDashboard():
     
     return render_template('adminDashboard.html', loanapplicants =loanapplicants)
 
+# All actions taken by the ADMIN on the ADMIN DASHBOARD are stored to the database to keep
+# track of any movements they make.
 @app.route('/log')
 def adminLog():
 
@@ -945,6 +958,7 @@ def adminLog():
 
     return render_template('adminlog.html', adminlog=log)
 
+# This function grabs the images uploaded to the system.
 def get_uploaded_file():
     rootdir = os.getcwd()
     upload_files=[]
@@ -955,19 +969,20 @@ def get_uploaded_file():
     upload_files.pop(0)     
     return upload_files
 
-
 @app.route('/uploads/<filename>')
 def get_image(filename):
     root_dir = os.getcwd()
     return send_from_directory(os.path.join(root_dir, app.config['UPLOAD_FOLDER']), filename)
 
-
+#
 @app.route('/files')
 def files():
     imgs=get_uploaded_file()
     return render_template('files.html', imgs=imgs)
 
-
+# The login route is pretty much self explanatory. This is the standard
+# login page for our user. If the admin inputs his credentials here, they are
+# logged in straight to the admin dashboard from this route.
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     error = None

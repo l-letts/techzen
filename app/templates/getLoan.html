@@ -30,6 +30,7 @@
 
         <tr>
             <th>Loan ID</th>
+            <th>Loan Type</th>
             <th>SID</th>
             <th>Amount</th>
             <th>Date</th>
@@ -41,6 +42,7 @@
 
         <tr>
             <td> {{ loan.loanid }} </td>
+            <td> {{ loan.loan_type }} </td>
             <td> {{ loan.sid }} </td>
             <td> {{ "${:,.2f}".format(loan.loanamount) }} </td>
             <td> {{ loan.start_date }} </td>
