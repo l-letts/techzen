@@ -116,7 +116,7 @@ def premium(loanamount, interestrate, length):
 # is collected from the database and then appended to a list.
 # Given that the list is empty, this means that there have been no payments made on the
 # loan. In this case, the payment list is set at Zero (0).
-# The final list is returned to the dashboard.
+# The final list is returned to the dashboard so that it may be used.
 def getpaymenthistory(loanid):
     
     paymentlist = []
